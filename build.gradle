@@ -1,0 +1,25 @@
+apply plugin: 'checkstyle'
+apply plugin: 'java'
+apply plugin: 'idea'
+
+group = 'ru.ensemplix'
+version = '1.0-SNAPSHOT'
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+checkstyle {
+    toolVersion = '6.3'
+    configFile = file('checkstyle.xml')
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.projectlombok:lombok:1.16.2'
+    testCompile 'junit:junit:4.12'
+}
