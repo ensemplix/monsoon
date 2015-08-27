@@ -154,10 +154,8 @@ public class CommandDispatcher {
             }
 
             for(int i = 1; i < length; i++) {
-                if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
-                    if(i + 1 != length) {
-                        throw new IllegalArgumentException("Iterable must be last parameter in " + method);
-                    }
+                if(Iterable.class.isAssignableFrom(parameters[i].getType()) && i + 1 != length) {
+                    throw new IllegalArgumentException("Iterable must be last parameter in " + method);
                 } else if(!parsers.containsKey(parameters[i].getType())) {
                     throw new IllegalArgumentException("Please provide type parser for " + parameters[i].getType());
                 }
