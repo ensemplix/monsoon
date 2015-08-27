@@ -9,6 +9,9 @@ import java.lang.reflect.Method;
 public class CommandHandler {
 
     @Getter
+    private String origin;
+
+    @Getter
     private String name;
 
     @Getter
