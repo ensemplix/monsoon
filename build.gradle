@@ -1,22 +1,61 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'maven-publish'
 apply plugin: 'checkstyle'
 apply plugin: 'java'
 apply plugin: 'idea'
 
-group = 'ru.ensemplix'
+group = 'ru.ensemplix.command'
 version = '1.0-SNAPSHOT'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 checkstyle {
     toolVersion = '6.3'
     configFile = file('checkstyle.xml')
 }
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
+    }
+}
+
+shadowJar {
+    classifier = ''
+
+    dependencies {
+        exclude(dependency('org.projectlombok:lombok:1.16.2'))
+    }
+}
+
 repositories {
     mavenCentral()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact shadowJar
+
+            repositories {
+                maven {
+                    credentials {
+                        username hasProperty('MAVEN_USER') ? System.getenv('MAVEN_USER') : ''
+                        password hasProperty('MAVEN_PASSWORD') ? System.getenv('MAVEN_PASSWORD') : ''
+                    }
+
+                    url 'http://maven.ensemplix.ru/artifactory/Ensemplix/'
+                }
+            }
+        }
+    }
 }
 
 dependencies {

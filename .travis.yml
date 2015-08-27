@@ -1,0 +1,5 @@
+language: java
+jdk: oraclejdk8
+before_install: chmod +x gradlew
+install: ./gradlew check
+after_success: "[[ $TRAVIS_PULL_REQUEST == false ]] && [[ $TRAVIS_BRANCH == master ]] && gradle publish"
