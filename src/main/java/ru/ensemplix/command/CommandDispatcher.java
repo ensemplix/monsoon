@@ -6,8 +6,8 @@ import com.google.common.collect.Multimap;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.ParameterizedType;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -88,12 +88,26 @@ public class CommandDispatcher {
         parsed[0] = sender;
 
         for (int i = 1; i < length; i++) {
-            TypeParser parser = parsers.get(parameters[i].getType());
+            int pos = argsFrom + i;
 
-            if(args.length - 1 >= argsFrom + i) {
-                parsed[i] = parser.parse(args[argsFrom + i]);
+            if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
+                ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
+                TypeParser parser = parsers.get(type.getActualTypeArguments()[0]);
+                Collection<Object> collection = new LinkedList<>();
+
+                for(int y = pos; y < args.length; y++) {
+                    collection.add(parser.parse(args[y]));
+                }
+
+                parsed[i] = collection;
             } else {
-                parsed[i] = parser.parse(null);
+                TypeParser parser = parsers.get(parameters[i].getType());
+
+                if (args.length - 1 >= pos) {
+                    parsed[i] = parser.parse(args[pos]);
+                } else {
+                    parsed[i] = parser.parse(null);
+                }
             }
         }
 
@@ -115,6 +129,12 @@ public class CommandDispatcher {
         checkNotNull(obj, "Please provide valid command");
         checkNotNull(names, "Please provide valid command name");
 
+        for(String name : names) {
+            if(getCommand(name, null) != null) {
+                throw new IllegalArgumentException("Command with name " + name + " already exists");
+            }
+        }
+
         for (Method method : obj.getClass().getMethods()) {
             Command annotation = method.getAnnotation(Command.class);
 
@@ -134,7 +154,11 @@ public class CommandDispatcher {
             }
 
             for(int i = 1; i < length; i++) {
-                if(!parsers.containsKey(parameters[i].getType())) {
+                if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
+                    if(i + 1 != length) {
+                        throw new IllegalArgumentException("Iterable must be last parameter in " + method);
+                    }
+                } else if(!parsers.containsKey(parameters[i].getType())) {
                     throw new IllegalArgumentException("Please provide type parser for " + parameters[i].getType());
                 }
             }
@@ -142,10 +166,6 @@ public class CommandDispatcher {
             CommandHandler handler = new CommandHandler(names[0], method.getName(), method, obj);
 
             for(String name : names) {
-                if(getCommand(name, null) != null) {
-                    throw new IllegalArgumentException("Command with name " + name + " already exists");
-                }
-
                 commands.put(name, handler);
             }
         }

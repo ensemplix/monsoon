@@ -1,11 +1,14 @@
 package ru.ensemplix.command;
 
+import java.util.Collection;
+
 public class SimpleCommand {
 
     public boolean hello = false;
     public boolean test = false;
     public int integer;
     public String string;
+    public Collection<String> strings;
 
     @Command
     public boolean hello(SimpleSender sender) {
@@ -31,6 +34,11 @@ public class SimpleCommand {
     @Command
     public void string(CommandSender sender, String value) {
         string = value;
+    }
+
+    @Command
+    public void collection(CommandSender sender, Collection<String> values) {
+        strings = values;
     }
 
 }
