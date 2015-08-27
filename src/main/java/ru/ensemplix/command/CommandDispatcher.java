@@ -12,21 +12,36 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Основной класс для работы с командами. Здесь регистрируются команды,
+ * парсеры и выполняются команды.
+ */
 public class CommandDispatcher {
 
+    /**
+     * Список всех команд.
+     */
     private final Multimap<String, CommandHandler> commands = ArrayListMultimap.create();
 
+    /**
+     * Список всех парсеров.
+     */
     private final Map<Class, TypeParser> parsers = new HashMap<>();
 
-    private final boolean prefix;
+    /**
+     * Нужно ли убирать первый символ("/", "!", "@") при выполнении команды.
+     * По умолчанию символ убирается.
+     */
+    private final boolean removeFirstChar;
 
     public CommandDispatcher() {
         this(true);
     }
 
-    public CommandDispatcher(boolean prefix) {
-        this.prefix = prefix;
+    public CommandDispatcher(boolean removeFirstChar) {
+        this.removeFirstChar = removeFirstChar;
 
+        // Стандартные парсеры библиотеки.
         bind(String.class, new StringParser());
         bind(Integer.class, new IntegerParser());
         bind(int.class, new IntegerParser());
@@ -34,12 +49,17 @@ public class CommandDispatcher {
         bind(boolean.class, new BooleanParser());
     }
 
+    /**
+     * Выполнении команды, отправленной пользователем. Если команда не будет найдена, то
+     * будет брошено исключение CommandNotFoundException. Возвращаемый результат зависит
+     * от результата выполнения команды и может использоваться для логирования.
+     */
     public boolean call(CommandSender sender, String cmd) throws CommandNotFoundException {
         checkNotNull(sender, "Please provide command sender");
         checkNotNull(cmd, "Please provide command line");
         checkArgument(cmd.length() > 1, "Please provide valid command line");
 
-        if(prefix) {
+        if(removeFirstChar) {
             cmd = cmd.substring(1);
         }
 
@@ -87,6 +107,10 @@ public class CommandDispatcher {
         return false;
     }
 
+    /**
+     * Регистрация команды происходит по любому объекту с помощью аннотации @Command.
+     * Количество имен команды на ограничено.
+     */
     public void register(Object obj, String... names) {
         checkNotNull(obj, "Please provide valid command");
         checkNotNull(names, "Please provide valid command name");
@@ -118,11 +142,18 @@ public class CommandDispatcher {
             CommandHandler handler = new CommandHandler(names[0], method.getName(), method, obj);
 
             for(String name : names) {
+                if(getCommand(name, null) != null) {
+                    throw new IllegalArgumentException("Command with name " + name + " already exists");
+                }
+
                 commands.put(name, handler);
             }
         }
     }
 
+    /**
+     * Регистрация парсера для конвертации строки в объект.
+     */
     public void bind(Class<?> clz, TypeParser parser) {
         parsers.put(clz, parser);
     }
