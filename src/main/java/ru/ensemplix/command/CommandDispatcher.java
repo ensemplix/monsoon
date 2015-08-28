@@ -7,7 +7,10 @@ import com.google.common.collect.Multimap;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -47,6 +50,10 @@ public class CommandDispatcher {
         bind(int.class, new IntegerParser());
         bind(Boolean.class, new BooleanParser());
         bind(boolean.class, new BooleanParser());
+        bind(Float.class, new FloatParser());
+        bind(float.class, new FloatParser());
+        bind(Double.class, new DoubleParser());
+        bind(double.class, new DoubleParser());
     }
 
     /**
@@ -215,6 +222,28 @@ public class CommandDispatcher {
                 return Boolean.parseBoolean(value);
             } catch(NumberFormatException e) {
                 return false;
+            }
+        }
+    }
+
+    private class FloatParser implements TypeParser<Float> {
+        @Override
+        public Float parse(String value) {
+            try {
+                return Float.parseFloat(value);
+            } catch(NumberFormatException e) {
+                return 0F;
+            }
+        }
+    }
+
+    private class DoubleParser implements TypeParser<Double> {
+        @Override
+        public Double parse(String value) {
+            try {
+                return Double.parseDouble(value);
+            } catch(NumberFormatException e) {
+                return 0D;
             }
         }
     }
