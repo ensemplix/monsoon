@@ -5,7 +5,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 
 group = 'ru.ensemplix.command'
-version = '1.0-SNAPSHOT'
+version = '1.0'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
