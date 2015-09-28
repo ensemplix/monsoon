@@ -47,8 +47,8 @@ publishing {
             repositories {
                 maven {
                     credentials {
-                        username hasProperty('MAVEN_USER') ? System.getenv('MAVEN_USER') : ''
-                        password hasProperty('MAVEN_PASSWORD') ? System.getenv('MAVEN_PASSWORD') : ''
+                        username System.getenv('MAVEN_USER') != null ? System.getenv('MAVEN_USER') : ''
+                        password System.getenv('MAVEN_PASSWORD') != null ? System.getenv('MAVEN_PASSWORD') : ''
                     }
 
                     url 'http://maven.ensemplix.ru/artifactory/Ensemplix/'
