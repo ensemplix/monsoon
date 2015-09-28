@@ -22,7 +22,7 @@ Monsoon [![Build Status](https://travis-ci.org/Ensemplix/Monsoon.svg?branch=mast
     <dependency>
         <groupId>ru.ensemplix.command</groupId>
         <artifactId>Monsoon</artifactId>
-        <version>1.0</version>
+        <version>1.1</version>
     </dependency>
 </dependencies>
 ```
@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-   compile 'ru.ensemplix.command:Monsoon:1.0'
+   compile 'ru.ensemplix.command:Monsoon:1.1'
 }
 ```
 ## Использование
