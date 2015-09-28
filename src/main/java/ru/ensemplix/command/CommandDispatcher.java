@@ -83,6 +83,7 @@ public class CommandDispatcher {
             }
         }
 
+        // Если команда не найдена, то выбрасываем исключение.
         if(command == null) {
             throw new CommandNotFoundException();
         }
@@ -94,6 +95,7 @@ public class CommandDispatcher {
         Object[] parsed = new Object[length];
         parsed[0] = sender;
 
+        // Подготавливаем аргументы команды.
         for (int i = 1; i < length; i++) {
             int pos = argsFrom + i;
 
@@ -118,6 +120,7 @@ public class CommandDispatcher {
             }
         }
 
+        // Выполняем команду.
         try {
             Object result = method.invoke(command.getObject(), parsed);
             return result == null || (boolean) result;
@@ -136,6 +139,7 @@ public class CommandDispatcher {
         checkNotNull(obj, "Please provide valid command");
         checkNotNull(names, "Please provide valid command name");
 
+        // Проверяем, что команды с таким именем еще нет.
         for(String name : names) {
             if(getCommand(name, null) != null) {
                 throw new IllegalArgumentException("Command with name " + name + " already exists");
@@ -145,10 +149,12 @@ public class CommandDispatcher {
         for (Method method : obj.getClass().getMethods()) {
             Command annotation = method.getAnnotation(Command.class);
 
+            // Команда должна обязательно быть помечена аннотацией @Command.
             if(annotation == null) {
                 continue;
             }
 
+            // Команда должна обязательно возвращать void или boolean.
             if(method.getReturnType() != void.class && method.getReturnType() != boolean.class) {
                 throw new IllegalArgumentException(method + " must return void or boolean");
             }
@@ -156,10 +162,12 @@ public class CommandDispatcher {
             Parameter[] parameters = method.getParameters();
             int length = parameters.length;
 
+            // Обязательно первым параметром команды должен быть ее отправитель.
             if(length == 0 || !CommandSender.class.isAssignableFrom(parameters[0].getType())) {
                 throw new IllegalArgumentException("Please provide command sender for " + method);
             }
 
+            // Проверяем что все параметры команды будут отработаны корректно.
             for(int i = 1; i < length; i++) {
                 if(Iterable.class.isAssignableFrom(parameters[i].getType()) && i + 1 != length) {
                     throw new IllegalArgumentException("Iterable must be last parameter in " + method);
