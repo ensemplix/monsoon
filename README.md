@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-   compile('ru.ensemplix.command:Monsoon:1.0')
+   compile 'ru.ensemplix.command:Monsoon:1.0'
 }
 ```
 ## Использование
