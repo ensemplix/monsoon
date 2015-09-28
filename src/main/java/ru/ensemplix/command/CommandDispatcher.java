@@ -76,10 +76,10 @@ public class CommandDispatcher {
 
         if(args.length > 1) {
             CommandHandler subcommand = getCommand(args[0], args[1]);
-            argsFrom = 1;
 
             if(subcommand != null) {
                 command = subcommand;
+                argsFrom = 1;
             }
         }
 
@@ -95,10 +95,10 @@ public class CommandDispatcher {
         Object[] parsed = new Object[length];
         parsed[0] = sender;
 
-        // Подготавливаем аргументы команды.
         for (int i = 1; i < length; i++) {
             int pos = argsFrom + i;
 
+            // Подготоваливаем коллекцию.
             if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
                 ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
                 TypeParser parser = parsers.get(type.getActualTypeArguments()[0]);
@@ -110,9 +110,10 @@ public class CommandDispatcher {
 
                 parsed[i] = collection;
             } else {
+                // Подготавливаем аргументы команды.
                 TypeParser parser = parsers.get(parameters[i].getType());
 
-                if (args.length - 1 >= pos) {
+                if (args.length > pos) {
                     parsed[i] = parser.parse(args[pos]);
                 } else {
                     parsed[i] = parser.parse(null);
