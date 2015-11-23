@@ -24,12 +24,12 @@ public class CommandDispatcher {
     /**
      * Список всех команд.
      */
-    private final Multimap<String, CommandHandler> commands = ArrayListMultimap.create();
+    private static final Multimap<String, CommandHandler> commands = ArrayListMultimap.create();
 
     /**
      * Список всех парсеров.
      */
-    private final Map<Class, TypeParser> parsers = new HashMap<>();
+    private static final Map<Class, TypeParser> parsers = new HashMap<>();
 
     /**
      * Нужно ли убирать первый символ("/", "!", "@") при выполнении команды.
