@@ -7,7 +7,7 @@ Monsoon [![Build Status](https://travis-ci.org/Ensemplix/Monsoon.svg?branch=mast
 
 ## Подключение
 
-Для подключения библиотеки в своем проекте необходимо использовать Maven или Gradle.
+Для подключения библиотеки в своем проекте необходимо использовать Maven или Gradle, а так же использовать 8-ую Java.
 
 ### Maven
 ```xml
