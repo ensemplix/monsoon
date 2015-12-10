@@ -47,7 +47,7 @@ repositories {
 publishing {
     publications {
         maven(MavenPublication) {
-            archives sourcesJar
+            artifact sourcesJar
             artifact shadowJar
 
             repositories {
