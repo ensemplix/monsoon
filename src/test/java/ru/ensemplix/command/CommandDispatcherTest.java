@@ -9,13 +9,14 @@ import static org.junit.Assert.*;
 
 public class CommandDispatcherTest {
 
+    private CommandDispatcher dispatcher = new CommandDispatcher();
+
     @Test
     public void testDispatcher() throws CommandNotFoundException {
         SimpleCommand command = new SimpleCommand();
         SimpleRegionCommand region = new SimpleRegionCommand();
         SimpleSender sender = new SimpleSender();
 
-        CommandDispatcher dispatcher = new CommandDispatcher();
         dispatcher.bind(SimpleRegion.class, new SimpleRegionParser());
 
         dispatcher.register(command, "test", "test2");
@@ -36,6 +37,11 @@ public class CommandDispatcherTest {
         assertEquals("Project:Id", region.name);
 
         assertArrayEquals(new String[] {"i", "love", "ensemplix", "<3"}, command.strings.toArray());
+    }
+
+    @Test(expected = CommandNotFoundException.class)
+    public void testCommandNotFound() throws Exception {
+         dispatcher.call(new SimpleSender(), "not existing command");
     }
 
 }
