@@ -1,4 +1,10 @@
-Monsoon [![Build Status](https://travis-ci.org/Ensemplix/Monsoon.svg?branch=master)](https://travis-ci.org/Ensemplix/Monsoon)
+[travis]:https://travis-ci.org/Ensemplix/Monsoon
+[codecov]:https://codecov.io/github/Ensemplix/Monsoon?branch=master
+
+[travis img]:https://travis-ci.org/Ensemplix/Monsoon.svg?branch=master
+[codecov img]:https://codecov.io/github/Ensemplix/Monsoon/coverage.svg?branch=master
+
+Monsoon [![][travis img]][travis] [![][codecov img]][codecov]
 ============
 
 Мы как никто другие знаем все сложности при создании новых команд. В нашем проекте используется дюжина различных команд.
