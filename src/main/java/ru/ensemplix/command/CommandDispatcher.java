@@ -61,7 +61,7 @@ public class CommandDispatcher {
      * будет брошено исключение CommandNotFoundException. Возвращаемый результат зависит
      * от результата выполнения команды и может использоваться для логирования.
      */
-    public boolean call(CommandSender sender, String cmd) throws CommandNotFoundException {
+    public boolean call(CommandSender sender, String cmd) throws CommandNotFoundException, CommandAccessException {
         checkNotNull(sender, "Please provide command sender");
         checkNotNull(cmd, "Please provide command line");
         checkArgument(cmd.length() > 1, "Please provide valid command line");
@@ -86,6 +86,10 @@ public class CommandDispatcher {
         // Если команда не найдена, то выбрасываем исключение.
         if(command == null) {
             throw new CommandNotFoundException();
+        }
+
+        if(!sender.canUseCommand(command.getOrigin(), argsFrom == 1 ? args[1] : null)) {
+            throw new CommandAccessException();
         }
 
         Method method = command.getMethod();

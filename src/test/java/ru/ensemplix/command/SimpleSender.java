@@ -7,4 +7,9 @@ public class SimpleSender implements CommandSender {
         System.out.println(message);
     }
 
+    @Override
+    public boolean canUseCommand(String command, String action) {
+        return true;
+    }
+
 }

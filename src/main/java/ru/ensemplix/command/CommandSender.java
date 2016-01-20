@@ -10,4 +10,9 @@ public interface CommandSender {
      */
     void sendMessage(String message);
 
+    /**
+     * Может ли пользователь выполнять указанную команду.
+     */
+    boolean canUseCommand(String command, String action);
+
 }

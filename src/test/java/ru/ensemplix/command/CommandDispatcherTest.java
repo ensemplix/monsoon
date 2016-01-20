@@ -12,7 +12,7 @@ public class CommandDispatcherTest {
     private CommandDispatcher dispatcher = new CommandDispatcher();
 
     @Test
-    public void testDispatcher() throws CommandNotFoundException {
+    public void testDispatcher() throws CommandNotFoundException, CommandAccessException {
         SimpleCommand command = new SimpleCommand();
         SimpleRegionCommand region = new SimpleRegionCommand();
         SimpleSender sender = new SimpleSender();
