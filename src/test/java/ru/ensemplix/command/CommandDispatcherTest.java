@@ -41,7 +41,7 @@ public class CommandDispatcherTest {
 
     @Test(expected = CommandNotFoundException.class)
     public void testCommandNotFound() throws Exception {
-         dispatcher.call(new SimpleSender(), "not existing command");
+        dispatcher.call(new SimpleSender(), "not existing command");
     }
 
 }
