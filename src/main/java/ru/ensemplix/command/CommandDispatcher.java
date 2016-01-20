@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -64,7 +63,10 @@ public class CommandDispatcher {
     public boolean call(CommandSender sender, String cmd) throws CommandNotFoundException, CommandAccessException {
         checkNotNull(sender, "Please provide command sender");
         checkNotNull(cmd, "Please provide command line");
-        checkArgument(cmd.length() > 1, "Please provide valid command line");
+
+        if(cmd.length() <= 1) {
+            throw new CommandNotFoundException();
+        }
 
         if(removeFirstChar) {
             cmd = cmd.substring(1);

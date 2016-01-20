@@ -10,12 +10,12 @@ import static org.junit.Assert.*;
 public class CommandDispatcherTest {
 
     private CommandDispatcher dispatcher = new CommandDispatcher();
+    private SimpleSender sender = new SimpleSender();
 
     @Test
-    public void testDispatcher() throws CommandNotFoundException, CommandAccessException {
+    public void testDispatcher() throws Exception {
         SimpleCommand command = new SimpleCommand();
         SimpleRegionCommand region = new SimpleRegionCommand();
-        SimpleSender sender = new SimpleSender();
 
         dispatcher.bind(SimpleRegion.class, new SimpleRegionParser());
 
@@ -41,7 +41,17 @@ public class CommandDispatcherTest {
 
     @Test(expected = CommandNotFoundException.class)
     public void testCommandNotFound() throws Exception {
-        dispatcher.call(new SimpleSender(), "not existing command");
+        dispatcher.call(sender, "not existing command");
+    }
+
+    @Test(expected = CommandNotFoundException.class)
+    public void testEmptyCommand() throws Exception {
+        dispatcher.call(sender, "");
+    }
+
+    @Test(expected = CommandNotFoundException.class)
+    public void testEmptyCommandWithChar() throws Exception {
+        dispatcher.call(sender, "/");
     }
 
 }
