@@ -224,6 +224,5 @@ public class CommandDispatcher {
     public void bind(Class<?> clz, TypeParser parser) {
         parsers.put(clz, parser);
     }
-
-
+    
 }
