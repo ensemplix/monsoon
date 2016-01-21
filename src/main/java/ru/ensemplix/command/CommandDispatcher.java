@@ -1,12 +1,17 @@
 package ru.ensemplix.command;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Throwables;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static ru.ensemplix.command.TypeParser.*;
 
@@ -19,12 +24,12 @@ public class CommandDispatcher {
     /**
      * Список всех команд.
      */
-    private static final Map<String, CommandHandler> commands = new HashMap<>();
+    protected static final Map<String, CommandHandler> commands = new HashMap<>();
 
     /**
      * Список всех парсеров.
      */
-    private static final Map<Class, TypeParser> parsers = new HashMap<>();
+    protected static final Map<Class, TypeParser> parsers = new HashMap<>();
 
     /**
      * Нужно ли убирать первый символ("/", "!", "@") при выполнении команды.
@@ -58,9 +63,8 @@ public class CommandDispatcher {
      */
     public boolean call(CommandSender sender, String cmd) throws CommandNotFoundException, CommandAccessException {
         checkNotNull(sender, "Please provide command sender");
-        checkNotNull(cmd, "Please provide command line");
 
-        if(cmd.length() <= 1) {
+        if(cmd == null || cmd.length() <= 1) {
             throw new CommandNotFoundException();
         }
 
@@ -91,7 +95,9 @@ public class CommandDispatcher {
             throw new CommandNotFoundException();
         }
 
-        if(!sender.canUseCommand(handler.getName(), method.getName())) {
+        String action = handler.getMain().equals(method) ? null : method.getName();
+
+        if(!sender.canUseCommand(handler.getName(), action)) {
             throw new CommandAccessException();
         }
 
@@ -142,12 +148,20 @@ public class CommandDispatcher {
      * Регистрация команды происходит по любому объекту с помощью аннотации @Command.
      * Количество имен команды на ограничено.
      */
-    public void register(Object obj, String... names) {
-        checkNotNull(obj, "Please provide valid command");
-        checkNotNull(names, "Please provide valid command name");
+    public void register(Object object, String... names) {
+        checkNotNull(object, "Please provide command object");
+        checkArgument(names.length > 0, "Please provide command name");
 
         // Проверяем, что команды с таким именем еще нет.
         for(String name : names) {
+            if(name == null || name.length() <= 0) {
+                throw new IllegalArgumentException("Please provide valid command name");
+            }
+
+            if(CharMatcher.WHITESPACE.matchesAnyOf(name)) {
+                throw new IllegalArgumentException("Please provide command name with no whitespace");
+            }
+
             if(commands.containsKey(name)) {
                 throw new IllegalArgumentException("Command with name " + name + " already exists");
             }
@@ -156,7 +170,7 @@ public class CommandDispatcher {
         Map<String, Method> actions = new HashMap<>();
         Method main = null;
 
-        for (Method method : obj.getClass().getMethods()) {
+        for (Method method : object.getClass().getMethods()) {
             Command annotation = method.getAnnotation(Command.class);
 
             // Команда должна обязательно быть помечена аннотацией @Command.
@@ -166,7 +180,7 @@ public class CommandDispatcher {
 
             // Команда должна обязательно возвращать void или boolean.
             if(method.getReturnType() != void.class && method.getReturnType() != boolean.class) {
-                throw new IllegalArgumentException(method + " must return void or boolean");
+                throw new IllegalArgumentException(method.getName() + " must return void or boolean");
             }
 
             Parameter[] parameters = method.getParameters();
@@ -174,14 +188,14 @@ public class CommandDispatcher {
 
             // Обязательно первым параметром команды должен быть ее отправитель.
             if(length == 0 || !CommandSender.class.isAssignableFrom(parameters[0].getType())) {
-                throw new IllegalArgumentException("Please provide command sender for " + method);
+                throw new IllegalArgumentException("Please provide command sender for " + method.getName());
             }
 
             // Проверяем что все параметры команды будут отработаны корректно.
             for(int i = 1; i < length; i++) {
                 if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
                     if(i + 1 != length) {
-                        throw new IllegalArgumentException("Iterable must be last parameter in " + method);
+                        throw new IllegalArgumentException("Iterable must be last parameter in " + method.getName());
                     }
                 } else if(!parsers.containsKey(parameters[i].getType())) {
                     throw new IllegalArgumentException("Please provide type parser for " + parameters[i].getType());
@@ -195,8 +209,12 @@ public class CommandDispatcher {
             actions.put(method.getName(), method);
         }
 
+        if(actions.isEmpty()) {
+            throw new IllegalStateException("Not found any method marked with @Command");
+        }
+
         for(String name : names) {
-            commands.put(name, new CommandHandler(names[0], obj, main, actions));
+            commands.put(name, new CommandHandler(names[0], object, main, actions));
         }
     }
 
@@ -206,5 +224,6 @@ public class CommandDispatcher {
     public void bind(Class<?> clz, TypeParser parser) {
         parsers.put(clz, parser);
     }
+
 
 }

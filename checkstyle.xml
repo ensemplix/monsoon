@@ -73,6 +73,7 @@
         <!-- Константы должны быть обязательно написаны верхним регистром. -->
         <module name="ConstantName">
             <property name="applyToPrivate" value="false"/>
+            <property name="applyToProtected" value="false"/>
         </module>
 
         <!-- Название пакета должно быть написано нижним регистром. -->
