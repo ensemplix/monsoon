@@ -16,7 +16,7 @@ public class SimpleCommand {
         return false;
     }
 
-    @Command
+    @Command(main = true)
     public void test(CommandSender sender) {
         test = true;
     }

@@ -1,16 +1,11 @@
 package ru.ensemplix.command;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,7 +18,7 @@ public class CommandDispatcher {
     /**
      * Список всех команд.
      */
-    private static final Multimap<String, CommandHandler> commands = ArrayListMultimap.create();
+    private static final Map<String, CommandHandler> commands = new HashMap<>();
 
     /**
      * Список всех парсеров.
@@ -73,28 +68,32 @@ public class CommandDispatcher {
         }
 
         String[] args = cmd.split(" ");
-        CommandHandler command = getCommand(args[0], null);
-        int argsFrom = 0;
+        CommandHandler handler = commands.get(args[0]);
 
-        if(args.length > 1) {
-            CommandHandler subcommand = getCommand(args[0], args[1]);
-
-            if(subcommand != null) {
-                command = subcommand;
-                argsFrom = 1;
-            }
-        }
-
-        // Если команда не найдена, то выбрасываем исключение.
-        if(command == null) {
+        if(handler == null) {
             throw new CommandNotFoundException();
         }
 
-        if(!sender.canUseCommand(command.getOrigin(), argsFrom == 1 ? args[1] : null)) {
+        Map<String, Method> methods = handler.getMethods();
+        Method method = null;
+        int start = 0;
+
+        if(args.length > 1 && methods.containsKey(args[1])) {
+            method = methods.get(args[1]);
+            start = 1;
+        } else if(handler.getMain() != null) {
+            method = handler.getMain();
+        }
+
+        // Если команда не найдена, то выбрасываем исключение.
+        if(method == null) {
+            throw new CommandNotFoundException();
+        }
+
+        if(!sender.canUseCommand(handler.getName(), method.getName())) {
             throw new CommandAccessException();
         }
 
-        Method method = command.getMethod();
         Parameter[] parameters = method.getParameters();
         int length = parameters.length;
 
@@ -102,7 +101,7 @@ public class CommandDispatcher {
         parsed[0] = sender;
 
         for (int i = 1; i < length; i++) {
-            int pos = argsFrom + i;
+            int current = start + i;
 
             // Подготоваливаем коллекцию.
             if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
@@ -110,7 +109,7 @@ public class CommandDispatcher {
                 TypeParser parser = parsers.get(type.getActualTypeArguments()[0]);
                 Collection<Object> collection = new LinkedList<>();
 
-                for(int y = pos; y < args.length; y++) {
+                for(int y = current; y < args.length; y++) {
                     collection.add(parser.parse(args[y]));
                 }
 
@@ -119,8 +118,8 @@ public class CommandDispatcher {
                 // Подготавливаем аргументы команды.
                 TypeParser parser = parsers.get(parameters[i].getType());
 
-                if (args.length > pos) {
-                    parsed[i] = parser.parse(args[pos]);
+                if (args.length > current) {
+                    parsed[i] = parser.parse(args[current]);
                 } else {
                     parsed[i] = parser.parse(null);
                 }
@@ -129,7 +128,7 @@ public class CommandDispatcher {
 
         // Выполняем команду.
         try {
-            Object result = method.invoke(command.getObject(), parsed);
+            Object result = method.invoke(handler.getObject(), parsed);
             return result == null || (boolean) result;
         } catch (Exception e) {
             Throwables.propagate(e);
@@ -148,10 +147,13 @@ public class CommandDispatcher {
 
         // Проверяем, что команды с таким именем еще нет.
         for(String name : names) {
-            if(getCommand(name, null) != null) {
+            if(commands.containsKey(name)) {
                 throw new IllegalArgumentException("Command with name " + name + " already exists");
             }
         }
+
+        Map<String, Method> actions = new HashMap<>();
+        Method main = null;
 
         for (Method method : obj.getClass().getMethods()) {
             Command annotation = method.getAnnotation(Command.class);
@@ -185,11 +187,15 @@ public class CommandDispatcher {
                 }
             }
 
-            CommandHandler handler = new CommandHandler(names[0], method.getName(), method, obj);
-
-            for(String name : names) {
-                commands.put(name, handler);
+            if(annotation.main()) {
+                main = method;
             }
+
+            actions.put(method.getName(), method);
+        }
+
+        for(String name : names) {
+            commands.put(name, new CommandHandler(names[0], obj, main, actions));
         }
     }
 
@@ -198,20 +204,6 @@ public class CommandDispatcher {
      */
     public void bind(Class<?> clz, TypeParser parser) {
         parsers.put(clz, parser);
-    }
-
-    private CommandHandler getCommand(String command, String subCommand) {
-        for (CommandHandler handler : commands.get(command)) {
-            if(subCommand == null) {
-                if(handler.getOrigin().equals(handler.getName())) {
-                    return handler;
-                }
-            } else if (handler.getName().equals(subCommand)) {
-                return handler;
-            }
-        }
-
-        return null;
     }
 
     private class StringParser implements TypeParser<String> {

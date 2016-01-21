@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 @AllArgsConstructor
 public class CommandHandler {
@@ -12,25 +13,18 @@ public class CommandHandler {
      * Основное название команды.
      */
     @Getter
-    private String origin;
-
-    /**
-     * Подтип команды. Например при выполнение команды
-     * "/region create" подтипом будет create.
-     */
-    @Getter
     private String name;
-
-    /**
-     * Метод, который вызываем при выполнение команды.
-     */
-    @Getter
-    private Method method;
 
     /**
      * Объект, который вызываем при выполнение команды.
      */
     @Getter
     private Object object;
+
+    @Getter
+    private Method main;
+
+    @Getter
+    private Map<String, Method> methods;
 
 }

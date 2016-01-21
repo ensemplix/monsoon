@@ -7,7 +7,7 @@ public class SimpleRegionCommand {
 
     public String name;
 
-    @Command
+    @Command(main = true)
     public void region(CommandSender sender, SimpleRegion region) {
         this.name = region.name;
     }
