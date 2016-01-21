@@ -1,4 +1,6 @@
-package ru.ensemplix.command;
+package ru.ensemplix.command.simple;
+
+import ru.ensemplix.command.CommandSender;
 
 public class SimpleSender implements CommandSender {
 
@@ -9,7 +11,7 @@ public class SimpleSender implements CommandSender {
 
     @Override
     public boolean canUseCommand(String command, String action) {
-        return true;
+        return !command.equals("access");
     }
 
 }

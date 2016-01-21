@@ -1,4 +1,7 @@
-package ru.ensemplix.command;
+package ru.ensemplix.command.simple;
+
+import ru.ensemplix.command.Command;
+import ru.ensemplix.command.CommandSender;
 
 import java.util.Collection;
 
