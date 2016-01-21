@@ -8,6 +8,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static ru.ensemplix.command.TypeParser.*;
 
 /**
  * Основной класс для работы с командами. Здесь регистрируются команды,
@@ -204,57 +205,6 @@ public class CommandDispatcher {
      */
     public void bind(Class<?> clz, TypeParser parser) {
         parsers.put(clz, parser);
-    }
-
-    private class StringParser implements TypeParser<String> {
-        @Override
-        public String parse(String value) {
-            return value;
-        }
-    }
-
-    private class IntegerParser implements TypeParser<Integer> {
-        @Override
-        public Integer parse(String value) {
-            try {
-                return Integer.parseInt(value);
-            } catch(NumberFormatException e) {
-                return 0;
-            }
-        }
-    }
-
-    private class BooleanParser implements TypeParser<Boolean> {
-        @Override
-        public Boolean parse(String value) {
-            try {
-                return Boolean.parseBoolean(value);
-            } catch(NumberFormatException e) {
-                return false;
-            }
-        }
-    }
-
-    private class FloatParser implements TypeParser<Float> {
-        @Override
-        public Float parse(String value) {
-            try {
-                return Float.parseFloat(value);
-            } catch(NumberFormatException e) {
-                return 0F;
-            }
-        }
-    }
-
-    private class DoubleParser implements TypeParser<Double> {
-        @Override
-        public Double parse(String value) {
-            try {
-                return Double.parseDouble(value);
-            } catch(NumberFormatException e) {
-                return 0D;
-            }
-        }
     }
 
 }
