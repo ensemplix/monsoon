@@ -32,11 +32,7 @@ public interface TypeParser<T> {
     class BooleanParser implements TypeParser<Boolean> {
         @Override
         public Boolean parse(String value) {
-            try {
-                return Boolean.parseBoolean(value);
-            } catch(NumberFormatException e) {
-                return false;
-            }
+            return Boolean.parseBoolean(value);
         }
     }
 
