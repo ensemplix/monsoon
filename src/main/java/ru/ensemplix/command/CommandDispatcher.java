@@ -6,10 +6,8 @@ import com.google.common.base.Throwables;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,6 +28,8 @@ public class CommandDispatcher {
      * Список всех парсеров.
      */
     protected static final Map<Class, TypeParser> parsers = new HashMap<>();
+
+    protected static final Map<Class, CommandCompleter> completers = new HashMap<>();
 
     /**
      * Нужно ли убирать первый символ("/", "!", "@") при выполнении команды.
@@ -61,7 +61,99 @@ public class CommandDispatcher {
      * будет брошено исключение CommandNotFoundException. Возвращаемый результат зависит
      * от результата выполнения команды и может использоваться для логирования.
      */
-    public boolean call(CommandSender sender, String cmd) throws CommandNotFoundException, CommandAccessException {
+    public boolean call(CommandSender sender, String cmd) throws CommandException {
+        CommandContext context = validate(sender, cmd);
+        Method method = context.getMethod();
+
+        if(method == null) {
+            throw new CommandNotFoundException();
+        }
+
+        String[] args = context.getArgs();
+
+        Parameter[] parameters = method.getParameters();
+        int length = parameters.length;
+
+        Object[] parsed = new Object[length];
+        parsed[0] = sender;
+
+        for (int i = 1; i < length; i++) {
+            // Подготоваливаем коллекцию.
+            if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
+                ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
+                TypeParser parser = parsers.get(type.getActualTypeArguments()[0]);
+                Collection<Object> collection = new ArrayList<>();
+
+                for(int y = i - 1; y < args.length; y++) {
+                    collection.add(parser.parse(args[y]));
+                }
+
+                parsed[i] = collection;
+            } else {
+                // Подготавливаем аргументы команды.
+                TypeParser parser = parsers.get(parameters[i].getType());
+
+                if (args.length + 1 > i) {
+                    parsed[i] = parser.parse(args[i - 1]);
+                } else {
+                    parsed[i] = parser.parse(null);
+                }
+            }
+        }
+
+        // Выполняем команду.
+        try {
+            Object result = method.invoke(context.getHandler().getObject(), parsed);
+            return result == null || (boolean) result;
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+
+        return false;
+    }
+
+    public Collection<String> complete(CommandSender sender, String cmd) throws CommandException {
+        CommandContext context = validate(sender, cmd);
+
+        String[] args = context.getArgs();
+        String action = context.getAction();
+
+        if(action == null && context.getHandler().getMain() == null) {
+            Collection<String> actions = context.getHandler().getMethods().keySet();
+
+            if(args.length == 1) {
+                return actions.stream().filter(e -> e.startsWith(args[0])).collect(Collectors.toList());
+            } else {
+                return actions;
+            }
+        }
+
+        String arg = "";
+        int i = 1;
+
+        if(args.length > 0) {
+            i = args.length;
+            arg = args[i - 1];
+        }
+
+        Parameter[] parameters = context.getMethod().getParameters();
+        CommandCompleter completer;
+
+        if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
+            ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
+            completer = completers.get(type.getActualTypeArguments()[0]);
+        } else {
+            completer = completers.get(parameters[i].getType());
+        }
+
+        if (completer != null) {
+            return completer.complete(arg);
+        }
+
+        return Collections.emptyList();
+    }
+
+    private CommandContext validate(CommandSender sender, String cmd) throws CommandException {
         checkNotNull(sender, "Please provide command sender");
 
         if(cmd == null || cmd.length() <= 1) {
@@ -81,67 +173,34 @@ public class CommandDispatcher {
 
         Map<String, Method> methods = handler.getMethods();
         Method method = null;
-        int start = 0;
 
         if(args.length > 1 && methods.containsKey(args[1])) {
             method = methods.get(args[1]);
-            start = 1;
-        } else if(handler.getMain() != null) {
-            method = handler.getMain();
-        }
+            args = Arrays.copyOfRange(args, 2, args.length);
+        } else {
+            args = Arrays.copyOfRange(args, 1, args.length);
 
-        // Если команда не найдена, то выбрасываем исключение.
-        if(method == null) {
-            throw new CommandNotFoundException();
-        }
-
-        String action = handler.getMain().equals(method) ? null : method.getName();
-
-        if(!sender.canUseCommand(handler.getName(), action)) {
-            throw new CommandAccessException();
-        }
-
-        Parameter[] parameters = method.getParameters();
-        int length = parameters.length;
-
-        Object[] parsed = new Object[length];
-        parsed[0] = sender;
-
-        for (int i = 1; i < length; i++) {
-            int current = start + i;
-
-            // Подготоваливаем коллекцию.
-            if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
-                ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
-                TypeParser parser = parsers.get(type.getActualTypeArguments()[0]);
-                Collection<Object> collection = new LinkedList<>();
-
-                for(int y = current; y < args.length; y++) {
-                    collection.add(parser.parse(args[y]));
-                }
-
-                parsed[i] = collection;
-            } else {
-                // Подготавливаем аргументы команды.
-                TypeParser parser = parsers.get(parameters[i].getType());
-
-                if (args.length > current) {
-                    parsed[i] = parser.parse(args[current]);
-                } else {
-                    parsed[i] = parser.parse(null);
-                }
+            if(handler.getMain() != null) {
+                method = handler.getMain();
             }
         }
 
-        // Выполняем команду.
-        try {
-            Object result = method.invoke(handler.getObject(), parsed);
-            return result == null || (boolean) result;
-        } catch (Exception e) {
-            Throwables.propagate(e);
+        // Если команда не найдена, то выбрасываем исключение.
+        String action = null;
+
+        if(method != null) {
+            Method main = handler.getMain();
+
+            if(main != null) {
+                action = main.equals(method) ? null : method.getName();
+            }
+
+            if (!sender.canUseCommand(handler.getName(), action)) {
+                throw new CommandAccessException();
+            }
         }
 
-        return false;
+        return new CommandContext(handler.getName(), action, args, handler, method);
     }
 
     /**
@@ -224,5 +283,9 @@ public class CommandDispatcher {
     public void bind(Class<?> clz, TypeParser parser) {
         parsers.put(clz, parser);
     }
-    
+
+    public void bind(Class<?> clz, CommandCompleter completer) {
+        completers.put(clz, completer);
+    }
+
 }

@@ -1,9 +1,10 @@
 package ru.ensemplix.command;
 
 import org.junit.Test;
-import ru.ensemplix.command.region.SimpleRegion;
-import ru.ensemplix.command.region.SimpleRegionCommand;
-import ru.ensemplix.command.region.SimpleRegionParser;
+import ru.ensemplix.command.region.Region;
+import ru.ensemplix.command.region.RegionCommand;
+import ru.ensemplix.command.region.RegionCompleter;
+import ru.ensemplix.command.region.RegionParser;
 import ru.ensemplix.command.simple.SimpleCommand;
 import ru.ensemplix.command.simple.SimpleSender;
 
@@ -15,7 +16,7 @@ public class CommandDispatcherTest {
     private CommandSender sender = new SimpleSender();
 
     @Test
-    public void testDispatcher() throws Exception {
+    public void testDispatcher() throws CommandException {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
 
@@ -35,14 +36,108 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testBind() throws Exception {
-        SimpleRegionCommand region = new SimpleRegionCommand();
+    public void testTypeParser() throws CommandException {
+        RegionCommand region = new RegionCommand();
 
-        dispatcher.bind(SimpleRegion.class, new SimpleRegionParser());
-        dispatcher.register(region, "region", "rg");
+        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.register(region, "parser");
 
-        assertTrue(dispatcher.call(sender, "/rg Project:Id"));
+        assertTrue(dispatcher.call(sender, "/parser Project:Id"));
         assertEquals("Project:Id", region.name);
+    }
+
+    @Test
+    public void testTypeParserIterable() throws CommandException {
+        RegionCommand region = new RegionCommand();
+
+        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.register(region, "iterable");
+
+        assertTrue(dispatcher.call(sender, "/iterable list home spawn koala"));
+        assertEquals(3, region.list.size());
+    }
+
+    @Test
+    public void testCompleteObject() throws CommandException {
+        RegionCommand region = new RegionCommand();
+
+        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.bind(Region.class, new RegionCompleter());
+        dispatcher.register(region, "object2");
+
+        String[] regions = dispatcher.complete(sender, "/object2").toArray(new String[4]);
+
+        assertEquals("home", regions[0]);
+        assertEquals("spawn", regions[1]);
+        assertEquals("spawn123", regions[2]);
+        assertEquals("spb", regions[3]);
+    }
+
+    @Test
+    public void testCompleteObjectPartial() throws CommandException {
+        RegionCommand region = new RegionCommand();
+
+        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.bind(Region.class, new RegionCompleter());
+        dispatcher.register(region, "object");
+
+        String[] regions = dispatcher.complete(sender, "/object sp").toArray(new String[3]);
+
+        assertEquals("spawn", regions[0]);
+        assertEquals("spawn123", regions[1]);
+        assertEquals("spb", regions[2]);
+    }
+
+    @Test
+    public void testCompleteIterable() throws CommandException {
+        RegionCommand region = new RegionCommand();
+
+        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.bind(Region.class, new RegionCompleter());
+        dispatcher.register(region, "iterable2");
+
+        String[] regions = dispatcher.complete(sender, "/iterable2 list").toArray(new String[4]);
+
+        assertEquals("home", regions[0]);
+        assertEquals("spawn", regions[1]);
+        assertEquals("spawn123", regions[2]);
+        assertEquals("spb", regions[3]);
+    }
+
+    @Test
+    public void testCompleteIterablePartial() throws CommandException {
+        RegionCommand region = new RegionCommand();
+
+        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.bind(Region.class, new RegionCompleter());
+        dispatcher.register(region, "iterable3");
+
+        String[] regions = dispatcher.complete(sender, "/iterable3 list sp").toArray(new String[3]);
+
+        assertEquals("spawn", regions[0]);
+        assertEquals("spawn123", regions[1]);
+        assertEquals("spb", regions[2]);
+    }
+
+    @Test
+    public void testCompleteActions() throws CommandException {
+        dispatcher.register(new Actions(), "actions");
+
+        String[] actions = dispatcher.complete(sender, "/actions").toArray(new String[4]);
+
+        assertEquals("add", actions[0]);
+        assertEquals("addMember", actions[1]);
+        assertEquals("view", actions[2]);
+        assertEquals("list", actions[3]);
+    }
+
+    @Test
+    public void testCompleteActionsPartial() throws CommandException {
+        dispatcher.register(new Actions(), "actions2");
+
+        String[] actions = dispatcher.complete(sender, "/actions2 ad").toArray(new String[2]);
+        assertEquals("add", actions[0]);
+        assertEquals("addMember", actions[1]);
     }
 
     @Test
@@ -102,39 +197,39 @@ public class CommandDispatcherTest {
     }
 
     @Test(expected = CommandNotFoundException.class)
-    public void testCallCmdNull() throws Exception {
+    public void testCallCmdNull() throws CommandException {
         dispatcher.call(sender, null);
     }
 
     @Test(expected = CommandNotFoundException.class)
-    public void testCallCmdEmpty() throws Exception {
+    public void testCallCmdEmpty() throws CommandException {
         dispatcher.call(sender, "");
     }
 
     @Test(expected = CommandNotFoundException.class)
-    public void testCallCmdEmptyPrefixed() throws Exception {
+    public void testCallCmdEmptyPrefixed() throws CommandException {
         dispatcher.call(sender, "/");
     }
 
     @Test(expected = CommandNotFoundException.class)
-    public void testCallCommandNotFound() throws Exception {
+    public void testCallCommandNotFound() throws CommandException {
         dispatcher.call(sender, "not existing command");
     }
 
     @Test(expected = CommandNotFoundException.class)
-    public void testCallCommandNoMain() throws Exception {
+    public void testCallCommandNoMain() throws CommandException {
         dispatcher.register(new NoMain(), "no_main");
         dispatcher.call(sender, "/no_main");
     }
 
     @Test(expected = CommandAccessException.class)
-    public void testCallCommandNoAccess() throws Exception {
+    public void testCallCommandNoAccess() throws CommandException {
         dispatcher.register(new Access(), "access");
         dispatcher.call(sender, "/access");
     }
 
     @Test
-    public void testCallMain() throws Exception {
+    public void testCallMain() throws CommandException {
         Main main = new Main();
 
         dispatcher.register(main, "main");
@@ -144,7 +239,7 @@ public class CommandDispatcherTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testCallPropagateException() throws Exception {
+    public void testCallPropagateException() throws CommandException {
         dispatcher.register(new PropagateException(), "exception");
         dispatcher.call(sender, "/exception");
     }
@@ -230,6 +325,28 @@ public class CommandDispatcherTest {
         @Command(main = true)
         public void exception(CommandSender sender) {
             throw new RuntimeException();
+        }
+    }
+
+    public class Actions {
+        @Command
+        public void list(CommandSender sender) {
+
+        }
+
+        @Command
+        public void view(CommandSender sender) {
+
+        }
+
+        @Command
+        public void add(CommandSender sender) {
+
+        }
+
+        @Command
+        public void addMember(CommandSender sender) {
+
         }
     }
 
