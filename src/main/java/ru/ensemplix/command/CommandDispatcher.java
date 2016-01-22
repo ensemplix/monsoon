@@ -1,7 +1,6 @@
 package ru.ensemplix.command;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Throwables;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -14,21 +13,23 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static ru.ensemplix.command.TypeParser.*;
 
 /**
- * Основной класс для работы с командами. Здесь регистрируются команды,
- * парсеры и выполняются команды.
+ * Основной класс для работы с командами.
  */
 public class CommandDispatcher {
 
     /**
-     * Список всех команд.
+     * Список команд.
      */
     protected static final Map<String, CommandHandler> commands = new HashMap<>();
 
     /**
-     * Список всех парсеров.
+     * Список парсеров в объекты.
      */
     protected static final Map<Class, TypeParser> parsers = new HashMap<>();
 
+    /**
+     * Список автоматических дополнений команды.
+     */
     protected static final Map<Class, CommandCompleter> completers = new HashMap<>();
 
     /**
@@ -44,7 +45,7 @@ public class CommandDispatcher {
     public CommandDispatcher(boolean removeFirstChar) {
         this.removeFirstChar = removeFirstChar;
 
-        // Стандартные парсеры библиотеки.
+        // Примитивные парсеры.
         bind(String.class, new StringParser());
         bind(Integer.class, new IntegerParser());
         bind(int.class, new IntegerParser());
@@ -57,9 +58,19 @@ public class CommandDispatcher {
     }
 
     /**
-     * Выполнении команды, отправленной пользователем. Если команда не будет найдена, то
-     * будет брошено исключение CommandNotFoundException. Возвращаемый результат зависит
-     * от результата выполнения команды и может использоваться для логирования.
+     * Выполнение команды, отправленной пользователем, на основе отправленного текста.
+     *
+     * Если команда не существует или нет такого действия, то будет выброшено исключение.
+     * {@link CommandNotFoundException} CommandNotFoundException.
+     *
+     * Если пользователю нельзя выполнять указанную команду, то будет выброшено
+     * исключение {@link CommandAccessException} CommandAccessException.
+     *
+     * @param sender Отправитель команды.
+     * @param cmd Строка, которую отослал отправитель.
+     * @return {@code true}, если команда была выполнена без ошибок.
+     * @throws CommandException Выбрасывает исключение, если команды не
+     * существует или нет разрешения на ее выполнение.
      */
     public boolean call(CommandSender sender, String cmd) throws CommandException {
         CommandContext context = validate(sender, cmd);
@@ -106,17 +117,28 @@ public class CommandDispatcher {
             Object result = method.invoke(context.getHandler().getObject(), parsed);
             return result == null || (boolean) result;
         } catch (Exception e) {
-            Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
-
-        return false;
     }
 
-    public Collection<String> complete(CommandSender sender, String cmd) throws CommandException {
-        CommandContext context = validate(sender, cmd);
+    /**
+     * Автоматическое дополнение команды на основе ввода пользователя.
+     *
+     * @param sender Отправитель команды.
+     * @param cmd Строка, которую отослал отправитель.
+     * @return Возвращает список возможных вариантов автодополнения.
+     */
+    public Collection<String> complete(CommandSender sender, String cmd) {
+        CommandContext context;
 
-        String[] args = context.getArgs();
+        try {
+            context = validate(sender, cmd);
+        } catch(CommandException e) {
+            return Collections.emptyList();
+        }
+
         String action = context.getAction();
+        String[] args = context.getArgs();
 
         if(action == null && context.getHandler().getMain() == null) {
             Collection<String> actions = context.getHandler().getMethods().keySet();
@@ -153,6 +175,16 @@ public class CommandDispatcher {
         return Collections.emptyList();
     }
 
+    /**
+     * Проверяет строку и конвертирует результат проверки в объект
+     * {@link CommandContext} CommandContext.
+     *
+     * @param sender Отправитель команды.
+     * @param cmd Строка, которую отослал отправитель.
+     * @return Возвращает результат проверки.
+     * @throws CommandException Выбрасывает исключение, если команды не
+     * существует или нет разрещения на ее выполнение.
+     */
     private CommandContext validate(CommandSender sender, String cmd) throws CommandException {
         checkNotNull(sender, "Please provide command sender");
 
@@ -185,7 +217,6 @@ public class CommandDispatcher {
             }
         }
 
-        // Если команда не найдена, то выбрасываем исключение.
         String action = null;
 
         if(method != null) {
@@ -200,12 +231,16 @@ public class CommandDispatcher {
             }
         }
 
-        return new CommandContext(handler.getName(), action, args, handler, method);
+        return new CommandContext(method, action, args, handler);
     }
 
     /**
-     * Регистрация команды происходит по любому объекту с помощью аннотации @Command.
-     * Количество имен команды на ограничено.
+     * Регистрация команды происходит по методам, которые содержат аннотацию
+     * {@link Command} @Command. Количество имен для команды неограничено.
+     * Обязательно должна быть хотя бы одна команда.
+     *
+     * @param object Объект, в котором мы ищем команды.
+     * @param names Названия команд.
      */
     public void register(Object object, String... names) {
         checkNotNull(object, "Please provide command object");
@@ -232,7 +267,7 @@ public class CommandDispatcher {
         for (Method method : object.getClass().getMethods()) {
             Command annotation = method.getAnnotation(Command.class);
 
-            // Команда должна обязательно быть помечена аннотацией @Command.
+            // Команда обязательно должна быть помечена аннотацией @Command.
             if(annotation == null) {
                 continue;
             }
@@ -245,12 +280,12 @@ public class CommandDispatcher {
             Parameter[] parameters = method.getParameters();
             int length = parameters.length;
 
-            // Обязательно первым параметром команды должен быть ее отправитель.
+            // Первым параметром команды обязательно должен быть ее отправитель.
             if(length == 0 || !CommandSender.class.isAssignableFrom(parameters[0].getType())) {
                 throw new IllegalArgumentException("Please provide command sender for " + method.getName());
             }
 
-            // Проверяем что все параметры команды будут отработаны корректно.
+            // Проверяем, что все параметры команды будут отработаны корректно.
             for(int i = 1; i < length; i++) {
                 if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
                     if(i + 1 != length) {
@@ -279,11 +314,20 @@ public class CommandDispatcher {
 
     /**
      * Регистрация парсера для конвертации строки в объект.
+     *
+     * @param clz Класс, который мы будем конвертировать в объект.
+     * @param parser Парсер, который знает как парсить класс.
      */
     public void bind(Class<?> clz, TypeParser parser) {
         parsers.put(clz, parser);
     }
 
+    /**
+     * Регистрация дополнителя для автодополнения команды.
+     *
+     * @param clz Класс, который мы будем автодополнять.
+     * @param completer Дополнитель, который знает как дополнять класс.
+     */
     public void bind(Class<?> clz, CommandCompleter completer) {
         completers.put(clz, completer);
     }

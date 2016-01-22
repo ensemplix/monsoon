@@ -12,6 +12,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Command {
 
+    /**
+     * Обозначает, что выбранная команда является главной.
+     *
+     * В случае если не будет найдено альтернатив, будет
+     * выполнена указанная команда.
+     *
+     * @return {@code true}, если команда является главной.
+     */
     boolean main() default false;
 
 }

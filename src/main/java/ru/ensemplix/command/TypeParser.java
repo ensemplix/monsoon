@@ -8,6 +8,9 @@ public interface TypeParser<T> {
 
     /**
      * Конвертация строки в объект.
+     *
+     * @param value Строку, которую конвертируем в объект.
+     * @return Объект, который получился после конвертации.
      */
     T parse(String value);
 
