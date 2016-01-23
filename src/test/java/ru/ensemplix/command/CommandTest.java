@@ -11,4 +11,9 @@ public class CommandTest {
         assertFalse((Boolean) Command.class.getMethod("main").getDefaultValue());
     }
 
+    @Test
+    public void testDefaultPermission() throws NoSuchMethodException {
+        assertFalse((Boolean) Command.class.getMethod("permission").getDefaultValue());
+    }
+
 }
