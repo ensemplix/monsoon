@@ -135,7 +135,19 @@ public class CommandDispatcher {
         try {
             context = validate(sender, cmd);
         } catch(CommandException e) {
-            return Collections.emptyList();
+            Collection<String> names = commands.keySet();
+
+            if(removeFirstChar) {
+                cmd = cmd.substring(1);
+            }
+
+            final String cmdFinal = cmd;
+
+            if(cmd.length() > 0) {
+                return names.stream().filter(name -> name.startsWith(cmdFinal)).collect(Collectors.toList());
+            }
+
+            return names;
         }
 
         String action = context.getName();
@@ -145,7 +157,7 @@ public class CommandDispatcher {
             Collection<String> actions = context.getHandler().getActions().keySet();
 
             if(args.length == 1) {
-                return actions.stream().filter(e -> e.startsWith(args[0])).collect(Collectors.toList());
+                return actions.stream().filter(name -> name.startsWith(args[0])).collect(Collectors.toList());
             } else {
                 return actions;
             }

@@ -131,8 +131,20 @@ public class CommandDispatcherTest {
         dispatcher.register(new Actions(), "actions2");
 
         String[] actions = dispatcher.complete(sender, "/actions2 ad").toArray(new String[2]);
+
         assertEquals("add", actions[0]);
         assertEquals("addMember", actions[1]);
+    }
+
+    @Test
+    public void testCompleteCommand() {
+        dispatcher.register(new SimpleCommand(), "simple");
+        dispatcher.register(new SimpleCommand(), "simple2");
+
+        String[] commands = dispatcher.complete(sender, "/sim").toArray(new String[2]);
+
+        assertEquals("simple", commands[0]);
+        assertEquals("simple2", commands[1]);
     }
 
     @Test
