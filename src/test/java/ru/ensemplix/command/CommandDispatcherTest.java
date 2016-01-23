@@ -310,7 +310,7 @@ public class CommandDispatcherTest {
     }
 
     public class Access {
-        @Command(main = true)
+        @Command(main = true, permission = true)
         public void access(CommandSender sender) {
 
         }

@@ -74,12 +74,13 @@ public class CommandDispatcher {
      */
     public boolean call(CommandSender sender, String cmd) throws CommandException {
         CommandContext context = validate(sender, cmd);
-        Method method = context.getMethod();
+        CommandAction action = context.getAction();
 
-        if(method == null) {
+        if(action == null) {
             throw new CommandNotFoundException();
         }
 
+        Method method = action.getMethod();
         String[] args = context.getArgs();
 
         Parameter[] parameters = method.getParameters();
@@ -137,11 +138,11 @@ public class CommandDispatcher {
             return Collections.emptyList();
         }
 
-        String action = context.getAction();
+        String action = context.getName();
         String[] args = context.getArgs();
 
         if(action == null && context.getHandler().getMain() == null) {
-            Collection<String> actions = context.getHandler().getMethods().keySet();
+            Collection<String> actions = context.getHandler().getActions().keySet();
 
             if(args.length == 1) {
                 return actions.stream().filter(e -> e.startsWith(args[0])).collect(Collectors.toList());
@@ -158,7 +159,7 @@ public class CommandDispatcher {
             arg = args[i - 1];
         }
 
-        Parameter[] parameters = context.getMethod().getParameters();
+        Parameter[] parameters = context.getAction().getMethod().getParameters();
         CommandCompleter completer;
 
         if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
@@ -203,35 +204,38 @@ public class CommandDispatcher {
             throw new CommandNotFoundException();
         }
 
-        Map<String, Method> methods = handler.getMethods();
-        Method method = null;
+        Map<String, CommandAction> actions = handler.getActions();
+        CommandAction action = null;
 
-        if(args.length > 1 && methods.containsKey(args[1])) {
-            method = methods.get(args[1]);
+        if(args.length > 1 && actions.containsKey(args[1])) {
+            action = actions.get(args[1]);
             args = Arrays.copyOfRange(args, 2, args.length);
         } else {
             args = Arrays.copyOfRange(args, 1, args.length);
 
             if(handler.getMain() != null) {
-                method = handler.getMain();
+                action = handler.getMain();
             }
         }
 
-        String action = null;
+        String actionName = null;
 
-        if(method != null) {
-            Method main = handler.getMain();
+        if(action != null) {
+            Method main = handler.getMain().getMethod();
+            Method method = action.getMethod();
 
             if(main != null) {
-                action = main.equals(method) ? null : method.getName();
+                actionName = main.equals(method) ? null : method.getName();
             }
 
-            if (!sender.canUseCommand(handler.getName(), action)) {
-                throw new CommandAccessException();
+            if(action.getAnnotation().permission()) {
+                if (!sender.canUseCommand(handler.getName(), actionName)) {
+                    throw new CommandAccessException();
+                }
             }
         }
 
-        return new CommandContext(method, action, args, handler);
+        return new CommandContext(actionName, action, args, handler);
     }
 
     /**
@@ -261,8 +265,8 @@ public class CommandDispatcher {
             }
         }
 
-        Map<String, Method> actions = new HashMap<>();
-        Method main = null;
+        Map<String, CommandAction> actions = new HashMap<>();
+        CommandAction main = null;
 
         for (Method method : object.getClass().getMethods()) {
             Command annotation = method.getAnnotation(Command.class);
@@ -296,11 +300,13 @@ public class CommandDispatcher {
                 }
             }
 
+            CommandAction action = new CommandAction(method, annotation);
+
             if(annotation.main()) {
-                main = method;
+                main = action;
             }
 
-            actions.put(method.getName(), method);
+            actions.put(method.getName(), action);
         }
 
         if(actions.isEmpty()) {

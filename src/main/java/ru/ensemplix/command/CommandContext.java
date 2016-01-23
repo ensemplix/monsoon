@@ -3,8 +3,6 @@ package ru.ensemplix.command;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.lang.reflect.Method;
-
 /**
  * Результат проверки строки на наличие команды.
  */
@@ -12,16 +10,16 @@ import java.lang.reflect.Method;
 public class CommandContext {
 
     /**
+     * Название команды, которое хочет выполнить пользователь.
+     */
+    @Getter
+    private String name;
+
+    /**
      * Команда, которую пользователь хочет выполнить.
      */
     @Getter
-    private Method method;
-
-    /**
-     * Действие команды, которое хочет выполнить пользователь.
-     */
-    @Getter
-    private String action;
+    private CommandAction action;
 
     /**
      * Аргументы для команды, которые передал пользователь в строке.

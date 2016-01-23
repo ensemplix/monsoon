@@ -3,7 +3,6 @@ package ru.ensemplix.command;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -31,12 +30,12 @@ public class CommandHandler {
      * использоваться данный метод.
      */
     @Getter
-    private Method main;
+    private CommandAction main;
 
     /**
      * Список всех действий команды внутри объекта.
      */
     @Getter
-    private Map<String, Method> methods;
+    private Map<String, CommandAction> actions;
 
 }
