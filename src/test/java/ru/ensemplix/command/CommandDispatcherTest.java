@@ -1,5 +1,6 @@
 package ru.ensemplix.command;
 
+import org.junit.Before;
 import org.junit.Test;
 import ru.ensemplix.command.region.Region;
 import ru.ensemplix.command.region.RegionCommand;
@@ -14,6 +15,12 @@ public class CommandDispatcherTest {
 
     private CommandDispatcher dispatcher = new CommandDispatcher();
     private CommandSender sender = new SimpleSender();
+
+    @Before
+    public void setUp() {
+        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.bind(Region.class, new RegionCompleter());
+    }
 
     @Test
     public void testDispatcher() throws CommandException {
@@ -60,9 +67,6 @@ public class CommandDispatcherTest {
     @Test
     public void testCompleteObject() throws CommandException {
         RegionCommand region = new RegionCommand();
-
-        dispatcher.bind(Region.class, new RegionParser());
-        dispatcher.bind(Region.class, new RegionCompleter());
         dispatcher.register(region, "object2");
 
         String[] regions = dispatcher.complete(sender, "/object2").toArray(new String[4]);
@@ -76,9 +80,6 @@ public class CommandDispatcherTest {
     @Test
     public void testCompleteObjectPartial() throws CommandException {
         RegionCommand region = new RegionCommand();
-
-        dispatcher.bind(Region.class, new RegionParser());
-        dispatcher.bind(Region.class, new RegionCompleter());
         dispatcher.register(region, "object");
 
         String[] regions = dispatcher.complete(sender, "/object sp").toArray(new String[3]);
@@ -91,9 +92,6 @@ public class CommandDispatcherTest {
     @Test
     public void testCompleteIterable() throws CommandException {
         RegionCommand region = new RegionCommand();
-
-        dispatcher.bind(Region.class, new RegionParser());
-        dispatcher.bind(Region.class, new RegionCompleter());
         dispatcher.register(region, "iterable2");
 
         String[] regions = dispatcher.complete(sender, "/iterable2 list").toArray(new String[4]);
@@ -107,9 +105,6 @@ public class CommandDispatcherTest {
     @Test
     public void testCompleteIterablePartial() throws CommandException {
         RegionCommand region = new RegionCommand();
-
-        dispatcher.bind(Region.class, new RegionParser());
-        dispatcher.bind(Region.class, new RegionCompleter());
         dispatcher.register(region, "iterable3");
 
         String[] regions = dispatcher.complete(sender, "/iterable3 list sp").toArray(new String[3]);
