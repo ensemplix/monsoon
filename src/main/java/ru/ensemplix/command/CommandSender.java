@@ -14,15 +14,13 @@ public interface CommandSender {
 
     /**
      * Может ли пользователь выполнять указанную команду.
-     */
-
-    /**
-     * Может ли пользователь выполнять указанную команду.
      *
      * @param command Команду, которую пытается выполнить пользователь.
      * @param action Действие, которе пытается выполнить пользователь.
      * @return {@code true}, если может выполнять команду.
      */
-    boolean canUseCommand(String command, String action);
+    default boolean canUseCommand(String command, String action) {
+        return true;
+    }
 
 }
