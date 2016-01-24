@@ -7,13 +7,13 @@
 Monsoon [![][travis img]][travis] [![][codecov img]][codecov]
 ============
 
-Мы как никто другие знаем все сложности при создании новых команд. В нашем проекте используется дюжина различных команд.
-Отличия этой библиотеки от любых других заключаются в генерации объектов на лету без необходимости парсить строку аргументов
-от пользователя.
+Мы, как никто другие, знаем все сложности при создании новых команд. В нашем проекте используется дюжина различных команд.
+Отличие этой библиотеки от любых других заключаются в генерации объектов на лету, без необходимости парсить строку аргументов
+от пользователя. Нужно лишь один раз написать парсер, и библиотека будет сама преобразовывать аргументы в объекты.
 
 ## Подключение
 
-Для подключения библиотеки в своем проекте необходимо использовать Maven или Gradle, а так же использовать 8-ую Java.
+Для подключения библиотеки в своем проекте необходимо использовать __Maven__ или __Gradle__, а так же использовать __Java 8__.
 
 ### Maven
 ```xml
@@ -48,7 +48,8 @@ dependencies {
 ## Использование
 Дальше приведены примеры для работы с библиотекой.
 ### Создание команды
-Количество имен команды не ограничено, но они не должны повторяться. Если команда будет не найдена, то будет брошено исключение ```CommandNotFoundException```. Количество подкоманд в объекте неограниченно.
+Количество имен команды не ограничено, но они не должны повторяться. Если команда будет не найдена, то будет брошено исключение ```CommandNotFoundException```.
+Количество подкоманд в объекте неограниченно.
 ```java 
 // Для работы с командами нужно унаследоваться от интерфейса CommandSender.
 public class FooSender implements CommandSender {
@@ -79,15 +80,15 @@ dispatcher.call(new FooSender(), "/test hello koala")
 Hello Koala
 ```
 ### Парсер объектов
-Библиотека может конвертировать не только простые типы в объекты, но для этого нужно написать небольшой парсер. 
+Библиотека может конвертировать не только простые типы в объекты, но для этого нужно написать парсер.
 ```java
 public class FooRegion {
     private final String name;
-    
+
     public FooRegion(String name) {
         this.name = name;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -143,4 +144,108 @@ Ensirius
 Invincible
 Koala
 Elon
+```
+### Ограничение доступа
+По умолчанию команда доступна всем пользователям. Для включения проверки прав необходимо в аннотации ```@Command``` выставить ```permission = true```. При отсутствии прав на команду будет брошено исключение ```CommandAccessException```.
+```java
+public class PrivateCommand {
+    @Command(permission = true)
+    public void test(PrivateSender sender) {
+        sender.sendMessage("You are koala!");
+    }
+}
+```
+Определение логики по которой происходит проверка прав происходит в ```CommandSender``` в методе ```canUseCommand```.
+```java
+public class PrivateSender implements CommandSender {
+    private String user;
+
+    public PrivateSender(String user) {
+        this.user = user;
+    }
+
+    @Override
+    public void sendMessage(String message) {
+        System.out.println(message);
+    }
+
+    @Ovrride
+    public boolean canUseCommand(String command, String action) {
+        if(player.equalsIgnoreCase("Koala")) {
+            return true;
+        }
+
+        return false;
+    }
+}
+```
+```java
+// Регистрируем команду.
+dispatcher.register(new PrivateCommand(), "private");
+// Вызываем команду.
+dispatcher.call(new PrivateSender("koala"), "/private test koala");
+```
+```
+You are Koala!
+```
+### Автодополнение
+Автодополнение показывает возможные варианты дополнения команды.
+
+```java
+public class FooActionsCommand {
+    @Command
+    public void list(CommandSender sender) {
+
+    }
+
+    @Command
+    public void view(CommandSender sender) {
+
+    }
+
+    @Command
+    public void add(CommandSender sender) {
+
+    }
+
+    @Command
+    public void addMember(CommandSender sender) {
+
+    }
+}
+```
+```java
+// Регистрируем команду.
+dispatcher.register(new FooActionsCommand(), "actions");
+// Вызываем автодополнение.
+Collection<String> options = dispatcher.complete(new FooSender(), "/actions ad");
+// Отображаем варианты.
+System.out.println(options);
+```
+```
+[add, addMember]
+```
+Для автодополнения объектов нужно написать парсер.
+```java
+public class FooRegionCompleter implements CommandCompleter {
+    private static final ImmutableSet<String> regions = ImmutableSet.of("home", "spawn", "spawn123", "spb");
+
+    @Override
+    public Collection<String> complete(String value) {
+        return regions.stream().filter(name -> name.startsWith(value)).collect(Collectors.toList());
+    }
+}
+```
+```java
+// Регистрируем команду.
+dispatcher.register(new FooRegionCommand(), "region");
+// Регистрируем парсер.
+dispatcher.bind(new FooRegionCompleter());
+// Вызываем автодополнение.
+Collection<String> options = dispatcher.complete(new FooSender(), "/region create");
+// Отображаем варианты.
+System.out.println(options);
+```
+```
+[home, spawn, spawn123, spb]
 ```
