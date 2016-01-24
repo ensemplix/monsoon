@@ -8,7 +8,6 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static ru.ensemplix.command.TypeParser.*;
 
@@ -260,7 +259,6 @@ public class CommandDispatcher {
      */
     public void register(Object object, String... names) {
         checkNotNull(object, "Please provide command object");
-        checkArgument(names.length > 0, "Please provide command name");
 
         // Проверяем, что команды с таким именем еще нет.
         for(String name : names) {
