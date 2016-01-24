@@ -158,10 +158,10 @@ public class PrivateCommand {
 Определение логики по которой происходит проверка прав происходит в ```CommandSender``` в методе ```canUseCommand```.
 ```java
 public class PrivateSender implements CommandSender {
-    private String user;
+    private String player;
 
-    public PrivateSender(String user) {
-        this.user = user;
+    public PrivateSender(String player) {
+        this.player = player;
     }
 
     @Override
