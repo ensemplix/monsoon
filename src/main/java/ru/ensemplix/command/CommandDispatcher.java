@@ -181,7 +181,7 @@ public class CommandDispatcher {
         }
 
         if (completer != null) {
-            return completer.complete(arg);
+            return completer.complete(context, arg);
         }
 
         return Collections.emptyList();

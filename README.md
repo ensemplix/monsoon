@@ -231,8 +231,8 @@ public class FooRegionCompleter implements CommandCompleter {
     private static final ImmutableSet<String> regions = ImmutableSet.of("home", "spawn", "spawn123", "spb");
 
     @Override
-    public Collection<String> complete(String value) {
-        return regions.stream().filter(name -> name.startsWith(value)).collect(Collectors.toList());
+    public Collection<String> complete(CommandContext context, String arg) {
+        return regions.stream().filter(name -> name.startsWith(arg)).collect(Collectors.toList());
     }
 }
 ```
