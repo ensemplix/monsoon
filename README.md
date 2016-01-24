@@ -28,7 +28,7 @@ Monsoon [![][travis img]][travis] [![][codecov img]][codecov]
     <dependency>
         <groupId>ru.ensemplix.command</groupId>
         <artifactId>Monsoon</artifactId>
-        <version>1.1</version>
+        <version>1.2</version>
     </dependency>
 </dependencies>
 ```
@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-   compile 'ru.ensemplix.command:Monsoon:1.1'
+   compile 'ru.ensemplix.command:Monsoon:1.2'
 }
 ```
 ## Использование
