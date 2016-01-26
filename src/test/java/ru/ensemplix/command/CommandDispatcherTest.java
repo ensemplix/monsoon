@@ -23,6 +23,24 @@ public class CommandDispatcherTest {
     }
 
     @Test
+    public void testCommandRegister() {
+        SimpleCommand command = new SimpleCommand();
+
+        dispatcher.register(command, "register");
+        assertTrue(CommandDispatcher.commands.containsKey("register"));
+    }
+
+    @Test
+    public void testCommandUnregister() {
+        SimpleCommand command = new SimpleCommand();
+
+        dispatcher.register(command, "unregister");
+        dispatcher.unregister(SimpleCommand.class);
+
+        assertFalse(CommandDispatcher.commands.containsKey("unregister"));
+    }
+
+    @Test
     public void testDispatcher() throws CommandException {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
@@ -169,7 +187,7 @@ public class CommandDispatcherTest {
 
     @Test
     public void testRegisterAlreadyExists() {
-        CommandDispatcher.commands.put("exists", null);
+        dispatcher.register(new SimpleCommand(), "exists");
         registerWithException(new Object(), "Command with name exists already exists", "exists");
     }
 

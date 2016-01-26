@@ -329,6 +329,23 @@ public class CommandDispatcher {
     }
 
     /**
+     * Удаляет все команды, связанные с выбранным классом.
+     *
+     * @param cls Класс, который мы удаляем из команд.
+     */
+    public void unregister(Class cls) {
+        checkNotNull(cls, "Please provide command object");
+
+        Iterator<CommandHandler> iterator = commands.values().iterator();
+
+        while(iterator.hasNext()) {
+            if(iterator.next().getObject().getClass().equals(cls)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
      * Регистрация парсера для конвертации строки в объект.
      *
      * @param clz Класс, который мы будем конвертировать в объект.
