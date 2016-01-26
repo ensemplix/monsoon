@@ -334,7 +334,7 @@ public class CommandDispatcher {
      * @param cls Класс, который мы удаляем из команд.
      */
     public void unregister(Class cls) {
-        checkNotNull(cls, "Please provide command object");
+        checkNotNull(cls, "Please provide command class");
 
         Iterator<CommandHandler> iterator = commands.values().iterator();
 
