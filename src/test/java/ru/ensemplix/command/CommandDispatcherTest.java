@@ -1,7 +1,9 @@
 package ru.ensemplix.command;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import ru.ensemplix.command.region.Region;
 import ru.ensemplix.command.region.RegionCommand;
 import ru.ensemplix.command.region.RegionCompleter;
@@ -12,6 +14,9 @@ import ru.ensemplix.command.simple.SimpleSender;
 import static org.junit.Assert.*;
 
 public class CommandDispatcherTest {
+
+    @Rule
+    public ExpectedException expected = ExpectedException.none();
 
     private CommandDispatcher dispatcher = new CommandDispatcher();
     private CommandSender sender = new SimpleSender();
@@ -167,58 +172,92 @@ public class CommandDispatcherTest {
 
     @Test
     public void testRegisterNoObject() {
-        registerWithException(null, "Please provide command object");
+        expected.expect(NullPointerException.class);
+        expected.expectMessage("Please provide command object");
+
+        dispatcher.register(null, "name");
     }
 
     @Test
     public void testRegisterNameNull() {
-        registerWithException(new Object(), "Please provide valid command name", null);
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Please provide valid command name");
+
+        dispatcher.register(new Object(), "name", null);
     }
 
     @Test
     public void testRegisterNameEmpty() {
-        registerWithException(new Object(), "Please provide valid command name", "");
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Please provide valid command name");
+
+        dispatcher.register(new Object(), "");
+
     }
 
     @Test
     public void testRegisterNameWhitespace() {
-        registerWithException(new Object(), "Please provide command name with no whitespace", "test test");
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Please provide command name with no whitespace");
+
+        dispatcher.register(new Object(), "test test");
     }
 
     @Test
     public void testRegisterAlreadyExists() {
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Command with name exists already exists");
+
         dispatcher.register(new SimpleCommand(), "exists");
-        registerWithException(new Object(), "Command with name exists already exists", "exists");
+        dispatcher.register(new SimpleCommand(), "exists");
     }
 
     @Test
     public void testRegisterNoAnnotations() {
-        registerWithException(new Object(), "Not found any method marked with @Command");
+        expected.expect(IllegalStateException.class);
+        expected.expectMessage("Not found any method marked with @Command");
+
+        dispatcher.register(new Object());
     }
 
     @Test
     public void testRegisterInvalidReturn() {
-        registerWithException(new InvalidReturn(), "invalidReturn must return void or boolean");
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("invalidReturn must return void or boolean");
+
+        dispatcher.register(new InvalidReturn());
     }
 
     @Test
     public void testRegisterNoSender() {
-        registerWithException(new NoSender(), "Please provide command sender for noSender");
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Please provide command sender for noSender");
+
+        dispatcher.register(new NoSender());
     }
 
     @Test
     public void testRegisterNoTypeParser() {
-        registerWithException(new NoTypeParser(), "Please provide type parser for class java.lang.Object");
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Please provide type parser for class java.lang.Object");
+
+        dispatcher.register(new NoTypeParser());
     }
 
     @Test
     public void testRegisterIterableLastParameter() {
-        registerWithException(new IterableLastParameter(), "Iterable must be last parameter in iterableLastParameter");
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Iterable must be last parameter in iterableLastParameter");
+
+        dispatcher.register(new IterableLastParameter());
     }
 
     @Test
-    public void testCallSenderNull() {
-        callWithException(null, "Please provide command sender", null);
+    public void testCallSenderNull() throws CommandException {
+        expected.expect(NullPointerException.class);
+        expected.expectMessage("Please provide command sender");
+
+        dispatcher.call(null, null);
     }
 
     @Test(expected = CommandNotFoundException.class)
@@ -267,32 +306,6 @@ public class CommandDispatcherTest {
     public void testCallPropagateException() throws CommandException {
         dispatcher.register(new PropagateException(), "exception");
         dispatcher.call(sender, "/exception");
-    }
-
-    public void registerWithException(Object object, String message) {
-        registerWithException(object, message, "name");
-    }
-
-    public void registerWithException(Object object, String message, String name) {
-        try {
-            dispatcher.register(object, name);
-            fail();
-        } catch(Exception e) {
-            if(!message.equals(e.getMessage())) {
-                throw new AssertionError(e);
-            }
-        }
-    }
-
-    public void callWithException(CommandSender sender, String message, String cmd) {
-        try {
-            dispatcher.call(sender, cmd);
-            fail();
-        } catch(Exception e) {
-            if(!message.equals(e.getMessage())) {
-                throw new AssertionError(e);
-            }
-        }
     }
 
     public class InvalidReturn {
