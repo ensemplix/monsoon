@@ -42,6 +42,11 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+task installGitHooks(type: Copy) {
+    from ('scripts/pre-commit')
+    into ('.git/hooks')
+}
+
 shadowJar {
     classifier = ''
 
@@ -90,3 +95,4 @@ dependencies {
 }
 
 check.dependsOn jacocoTestReport
+ideaModule.dependsOn installGitHooks

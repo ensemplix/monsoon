@@ -1,0 +1,6 @@
+#!/bin/sh
+git stash -q --keep-index
+./gradlew check --daemon
+RESULT=$?
+git stash pop -q
+exit $RESULT
