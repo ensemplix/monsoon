@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import ru.ensemplix.command.argument.ArgumentParser.EnumArgumentParser;
 import ru.ensemplix.command.region.Region;
 import ru.ensemplix.command.region.RegionArgumentParser;
 import ru.ensemplix.command.region.RegionCommand;
@@ -14,6 +15,8 @@ import ru.ensemplix.command.simple.SimpleSender;
 import static org.junit.Assert.*;
 import static ru.ensemplix.command.argument.Argument.Result.FAIL;
 import static ru.ensemplix.command.argument.Argument.Result.SUCCESS;
+import static ru.ensemplix.command.simple.SimpleCommand.SimpleEnum;
+import static ru.ensemplix.command.simple.SimpleCommand.SimpleEnum.WORLD;
 
 public class CommandDispatcherTest {
 
@@ -25,6 +28,7 @@ public class CommandDispatcherTest {
 
     @Before
     public void setUp() {
+        dispatcher.bind(SimpleEnum.class, new EnumArgumentParser(SimpleEnum.class));
         dispatcher.bind(Region.class, new RegionArgumentParser());
         dispatcher.bind(Region.class, new RegionCompleter());
     }
@@ -61,6 +65,7 @@ public class CommandDispatcherTest {
         assertTrue(dispatcher.call(sender, "/test collection i love ensemplix <3"));
         assertTrue(dispatcher.call(sender, "/test2 argument koala"));
         assertTrue(dispatcher.call(sender, "/test2 argument2"));
+        assertTrue(dispatcher.call(sender, "/test2 enumm world"));
 
         assertTrue(command.hello && command.test);
         assertEquals(36, command.integer);
@@ -69,6 +74,7 @@ public class CommandDispatcherTest {
         assertEquals("koala", command.argument.getValue());
         assertEquals(FAIL, command.argument2.getResult());
         assertNull(command.argument2.getValue());
+        assertEquals(WORLD, command.enumm);
 
         assertArrayEquals(new String[] {"i", "love", "ensemplix", "<3"}, command.strings.toArray());
     }

@@ -15,6 +15,7 @@ public class SimpleCommand {
     public Collection<String> strings;
     public Argument argument;
     public Argument argument2;
+    public SimpleEnum enumm;
 
     @Command
     public boolean hello(SimpleSender sender) {
@@ -55,6 +56,15 @@ public class SimpleCommand {
     @Command
     public void argument2(CommandSender sender, Argument<String> value) {
         argument2 = value;
+    }
+
+    @Command
+    public void enumm(CommandSender sender, SimpleEnum enumm) {
+        this.enumm = enumm;
+    }
+
+    public enum SimpleEnum {
+        HELLO, WORLD
     }
 
 }

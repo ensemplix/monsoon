@@ -1,5 +1,7 @@
 package ru.ensemplix.command.argument;
 
+import lombok.AllArgsConstructor;
+
 import static ru.ensemplix.command.argument.Argument.Result.FAIL;
 import static ru.ensemplix.command.argument.Argument.Result.SUCCESS;
 
@@ -69,6 +71,29 @@ public interface ArgumentParser<T> {
             } catch (NumberFormatException e) {
                 return new Argument<>(FAIL, 0D);
             }
+        }
+    }
+
+    @AllArgsConstructor
+    class EnumArgumentParser implements ArgumentParser<Enum> {
+        private static final IntegerArgumentParser integerParser = new IntegerArgumentParser();
+        private final Class<? extends Enum> enumType;
+
+        @Override
+        public Argument<Enum> parseArgument(String value) {
+            Argument<Integer> argument = integerParser.parseArgument(value);
+
+            for(Enum e : enumType.getEnumConstants()) {
+                if(argument.getResult() == SUCCESS && argument.getValue().equals(e.ordinal())) {
+                    return new Argument<>(SUCCESS, e);
+                }
+
+                if(e.name().equalsIgnoreCase(value)) {
+                    return new Argument<>(SUCCESS, e);
+                }
+            }
+
+            return new Argument<>(FAIL, null);
         }
     }
 

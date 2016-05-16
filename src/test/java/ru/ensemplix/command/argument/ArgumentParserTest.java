@@ -3,6 +3,7 @@ package ru.ensemplix.command.argument;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static ru.ensemplix.command.argument.Argument.*;
 import static ru.ensemplix.command.argument.Argument.Result.FAIL;
 import static ru.ensemplix.command.argument.Argument.Result.SUCCESS;
 import static ru.ensemplix.command.argument.ArgumentParser.*;
@@ -73,6 +74,21 @@ public class ArgumentParserTest {
         assertEquals(1.6D, result.getValue(), 0);
         assertEquals(FAIL, result2.getResult());
         assertEquals(0F, result2.getValue(), 0);
+    }
+
+    @Test
+    public void testEnumParser() {
+        EnumArgumentParser parser = new EnumArgumentParser(Result.class);
+        Argument<Enum> result = parser.parseArgument("success");
+        Argument<Enum> result2 = parser.parseArgument("0");
+        Argument<Enum> result3 = parser.parseArgument("string");
+
+        assertEquals(SUCCESS, result.getResult());
+        assertEquals(SUCCESS, result.getValue());
+        assertEquals(SUCCESS, result2.getResult());
+        assertEquals(SUCCESS, result2.getResult());
+        assertEquals(FAIL, result3.getResult());
+        assertEquals(FAIL, result3.getResult());
     }
 
 }
