@@ -2,6 +2,7 @@ package ru.ensemplix.command.simple;
 
 import ru.ensemplix.command.Command;
 import ru.ensemplix.command.CommandSender;
+import ru.ensemplix.command.argument.Argument;
 
 import java.util.Collection;
 
@@ -12,6 +13,8 @@ public class SimpleCommand {
     public int integer;
     public String string;
     public Collection<String> strings;
+    public Argument argument;
+    public Argument argument2;
 
     @Command
     public boolean hello(SimpleSender sender) {
@@ -42,6 +45,16 @@ public class SimpleCommand {
     @Command
     public void collection(CommandSender sender, Collection<String> values) {
         strings = values;
+    }
+
+    @Command
+    public void argument(CommandSender sender, Argument<String> value) {
+        argument = value;
+    }
+
+    @Command
+    public void argument2(CommandSender sender, Argument<String> value) {
+        argument2 = value;
     }
 
 }

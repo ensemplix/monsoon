@@ -1,6 +1,8 @@
 package ru.ensemplix.command;
 
 import com.google.common.base.CharMatcher;
+import ru.ensemplix.command.argument.Argument;
+import ru.ensemplix.command.argument.ArgumentParser;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -9,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static ru.ensemplix.command.CommandArgumentParser.*;
+import static ru.ensemplix.command.argument.ArgumentParser.*;
 
 /**
  * Основной класс для работы с командами.
@@ -29,7 +31,7 @@ public class CommandDispatcher {
     /**
      * Список парсеров в объекты.
      */
-    protected static final Map<Class, CommandArgumentParser> parsers = new HashMap<>();
+    protected static final Map<Class, ArgumentParser> parsers = new HashMap<>();
 
     /**
      * Нужно ли убирать первый символ("/", "!", "@") при выполнении команды.
@@ -88,26 +90,46 @@ public class CommandDispatcher {
         Object[] parsed = new Object[length];
         parsed[0] = sender;
 
-        for (int i = 1; i < length; i++) {
-            // Подготоваливаем коллекцию.
-            if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
+        for(int i = 1; i < length; i++) {
+            Class<?> parameterType = parameters[i].getType();
+            ArgumentParser parser;
+
+            if(Iterable.class.isAssignableFrom(parameterType) || Argument.class.isAssignableFrom(parameterType)) {
                 ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
-                CommandArgumentParser parser = parsers.get(type.getActualTypeArguments()[0]);
+                parser = parsers.get(type.getActualTypeArguments()[0]);
+            } else {
+                parser = parsers.get(parameterType);
+            }
+
+            if(Iterable.class.isAssignableFrom(parameterType)) {
+                // Подготоваливаем коллекцию.
                 Collection<Object> collection = new ArrayList<>();
 
                 for(int y = i - 1; y < args.length; y++) {
-                    collection.add(parser.parseArgument(args[y]));
+                    Argument argument = parser.parseArgument(args[y]);
+
+                    if(Argument.class.isAssignableFrom(parameterType)) {
+                        collection.add(argument);
+                    } else {
+                        collection.add(argument.getValue());
+                    }
                 }
 
                 parsed[i] = collection;
             } else {
                 // Подготавливаем аргументы команды.
-                CommandArgumentParser parser = parsers.get(parameters[i].getType());
+                Argument argument;
 
                 if (args.length + 1 > i) {
-                    parsed[i] = parser.parseArgument(args[i - 1]);
+                    argument = parser.parseArgument(args[i - 1]);
                 } else {
-                    parsed[i] = parser.parseArgument(null);
+                    argument = parser.parseArgument(null);
+                }
+
+                if(Argument.class.isAssignableFrom(parameterType)) {
+                    parsed[i] = argument;
+                } else {
+                    parsed[i] = argument.getValue();
                 }
             }
         }
@@ -301,12 +323,22 @@ public class CommandDispatcher {
 
             // Проверяем, что все параметры команды будут отработаны корректно.
             for(int i = 1; i < length; i++) {
-                if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
-                    if(i + 1 != length) {
+                Class<?> parameterType = parameters[i].getType();
+
+                if(Iterable.class.isAssignableFrom(parameterType)) {
+                    if (i + 1 != length) {
                         throw new IllegalArgumentException("Iterable must be last parameter in " + method.getName());
                     }
-                } else if(!parsers.containsKey(parameters[i].getType())) {
-                    throw new IllegalArgumentException("Please provide type parser for " + parameters[i].getType());
+
+                } else {
+                    if(Argument.class.isAssignableFrom(parameterType)) {
+                        ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
+                        parameterType = (Class<?>) type.getActualTypeArguments()[0];
+                    }
+
+                    if(!parsers.containsKey(parameterType)) {
+                        throw new IllegalArgumentException("Please provide type parser for " + parameters[i].getType());
+                    }
                 }
             }
 
@@ -351,7 +383,7 @@ public class CommandDispatcher {
      * @param clz Класс, который мы будем конвертировать в объект.
      * @param parser Парсер, который знает как парсить класс.
      */
-    public void bind(Class<?> clz, CommandArgumentParser parser) {
+    public void bind(Class<?> clz, ArgumentParser parser) {
         parsers.put(clz, parser);
     }
 

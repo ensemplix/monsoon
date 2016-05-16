@@ -5,13 +5,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import ru.ensemplix.command.region.Region;
+import ru.ensemplix.command.region.RegionArgumentParser;
 import ru.ensemplix.command.region.RegionCommand;
 import ru.ensemplix.command.region.RegionCompleter;
-import ru.ensemplix.command.region.RegionArgumentParser;
 import ru.ensemplix.command.simple.SimpleCommand;
 import ru.ensemplix.command.simple.SimpleSender;
 
 import static org.junit.Assert.*;
+import static ru.ensemplix.command.argument.Argument.Result.FAIL;
+import static ru.ensemplix.command.argument.Argument.Result.SUCCESS;
 
 public class CommandDispatcherTest {
 
@@ -57,10 +59,16 @@ public class CommandDispatcherTest {
         assertFalse(dispatcher.call(sender, "/test integer"));
         assertTrue(dispatcher.call(sender, "/test2 string koala"));
         assertTrue(dispatcher.call(sender, "/test collection i love ensemplix <3"));
+        assertTrue(dispatcher.call(sender, "/test2 argument koala"));
+        assertTrue(dispatcher.call(sender, "/test2 argument2"));
 
         assertTrue(command.hello && command.test);
         assertEquals(36, command.integer);
         assertEquals("koala", command.string);
+        assertEquals(SUCCESS, command.argument.getResult());
+        assertEquals("koala", command.argument.getValue());
+        assertEquals(FAIL, command.argument2.getResult());
+        assertNull(command.argument2.getValue());
 
         assertArrayEquals(new String[] {"i", "love", "ensemplix", "<3"}, command.strings.toArray());
     }
