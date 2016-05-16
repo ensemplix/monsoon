@@ -15,12 +15,12 @@ public class CommandAction {
      * Метод, к которому относится действие.
      */
     @Getter
-    private Method method;
+    private final Method method;
 
     /**
      * Аннотация, содержащая информацию о действии.
      */
     @Getter
-    private Command annotation;
+    private final Command annotation;
 
 }

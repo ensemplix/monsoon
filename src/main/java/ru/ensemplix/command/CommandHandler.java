@@ -15,13 +15,13 @@ public class CommandHandler {
      * Основное название команды.
      */
     @Getter
-    private String name;
+    private final String name;
 
     /**
      * Объект, который вызываем при выполнении команды.
      */
     @Getter
-    private Object object;
+    private final Object object;
 
     /**
      * Обозначает, что выбранный метод команды является главным.
@@ -30,12 +30,12 @@ public class CommandHandler {
      * использоваться данный метод.
      */
     @Getter
-    private CommandAction main;
+    private final CommandAction main;
 
     /**
      * Список всех действий команды внутри объекта.
      */
     @Getter
-    private Map<String, CommandAction> actions;
+    private final Map<String, CommandAction> actions;
 
 }

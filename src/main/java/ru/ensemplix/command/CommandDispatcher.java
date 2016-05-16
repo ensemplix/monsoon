@@ -9,12 +9,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static ru.ensemplix.command.TypeParser.*;
+import static ru.ensemplix.command.CommandArgumentParser.*;
 
 /**
  * Основной класс для работы с командами.
  */
 public class CommandDispatcher {
+
+    /**
+     * Список автоматических дополнений команды.
+     */
+    protected static final Map<Class, CommandCompleter> completers = new HashMap<>();
 
     /**
      * Список команд.
@@ -24,12 +29,7 @@ public class CommandDispatcher {
     /**
      * Список парсеров в объекты.
      */
-    protected static final Map<Class, TypeParser> parsers = new HashMap<>();
-
-    /**
-     * Список автоматических дополнений команды.
-     */
-    protected static final Map<Class, CommandCompleter> completers = new HashMap<>();
+    protected static final Map<Class, CommandArgumentParser> parsers = new HashMap<>();
 
     /**
      * Нужно ли убирать первый символ("/", "!", "@") при выполнении команды.
@@ -45,15 +45,15 @@ public class CommandDispatcher {
         this.removeFirstChar = removeFirstChar;
 
         // Примитивные парсеры.
-        bind(String.class, new StringParser());
-        bind(Integer.class, new IntegerParser());
-        bind(int.class, new IntegerParser());
-        bind(Boolean.class, new BooleanParser());
-        bind(boolean.class, new BooleanParser());
-        bind(Float.class, new FloatParser());
-        bind(float.class, new FloatParser());
-        bind(Double.class, new DoubleParser());
-        bind(double.class, new DoubleParser());
+        bind(String.class, new StringArgumentParser());
+        bind(Integer.class, new IntegerArgumentParser());
+        bind(int.class, new IntegerArgumentParser());
+        bind(Boolean.class, new BooleanArgumentParser());
+        bind(boolean.class, new BooleanArgumentParser());
+        bind(Float.class, new FloatArgumentParser());
+        bind(float.class, new FloatArgumentParser());
+        bind(Double.class, new StringArgumentParser());
+        bind(double.class, new StringArgumentParser());
     }
 
     /**
@@ -92,22 +92,22 @@ public class CommandDispatcher {
             // Подготоваливаем коллекцию.
             if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
                 ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
-                TypeParser parser = parsers.get(type.getActualTypeArguments()[0]);
+                CommandArgumentParser parser = parsers.get(type.getActualTypeArguments()[0]);
                 Collection<Object> collection = new ArrayList<>();
 
                 for(int y = i - 1; y < args.length; y++) {
-                    collection.add(parser.parse(args[y]));
+                    collection.add(parser.parseArgument(args[y]));
                 }
 
                 parsed[i] = collection;
             } else {
                 // Подготавливаем аргументы команды.
-                TypeParser parser = parsers.get(parameters[i].getType());
+                CommandArgumentParser parser = parsers.get(parameters[i].getType());
 
                 if (args.length + 1 > i) {
-                    parsed[i] = parser.parse(args[i - 1]);
+                    parsed[i] = parser.parseArgument(args[i - 1]);
                 } else {
-                    parsed[i] = parser.parse(null);
+                    parsed[i] = parser.parseArgument(null);
                 }
             }
         }
@@ -351,7 +351,7 @@ public class CommandDispatcher {
      * @param clz Класс, который мы будем конвертировать в объект.
      * @param parser Парсер, который знает как парсить класс.
      */
-    public void bind(Class<?> clz, TypeParser parser) {
+    public void bind(Class<?> clz, CommandArgumentParser parser) {
         parsers.put(clz, parser);
     }
 

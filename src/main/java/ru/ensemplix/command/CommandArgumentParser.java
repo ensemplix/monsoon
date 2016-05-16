@@ -4,7 +4,7 @@ package ru.ensemplix.command;
  * Реализация данного интерфейса позволяет конвертировать
  * строковый аргумент, отправленный игроком в нужный объект.
  */
-public interface TypeParser<T> {
+public interface CommandArgumentParser<T> {
 
     /**
      * Конвертация строки в объект.
@@ -12,18 +12,18 @@ public interface TypeParser<T> {
      * @param value Строку, которую конвертируем в объект.
      * @return Объект, который получился после конвертации.
      */
-    T parse(String value);
+    T parseArgument(String value);
 
-    class StringParser implements TypeParser<String> {
+    class StringArgumentParser implements CommandArgumentParser<String> {
         @Override
-        public String parse(String value) {
+        public String parseArgument(String value) {
             return value;
         }
     }
 
-    class IntegerParser implements TypeParser<Integer> {
+    class IntegerArgumentParser implements CommandArgumentParser<Integer> {
         @Override
-        public Integer parse(String value) {
+        public Integer parseArgument(String value) {
             try {
                 return Integer.parseInt(value);
             } catch(NumberFormatException e) {
@@ -32,16 +32,16 @@ public interface TypeParser<T> {
         }
     }
 
-    class BooleanParser implements TypeParser<Boolean> {
+    class BooleanArgumentParser implements CommandArgumentParser<Boolean> {
         @Override
-        public Boolean parse(String value) {
+        public Boolean parseArgument(String value) {
             return Boolean.parseBoolean(value);
         }
     }
 
-    class FloatParser implements TypeParser<Float> {
+    class FloatArgumentParser implements CommandArgumentParser<Float> {
         @Override
-        public Float parse(String value) {
+        public Float parseArgument(String value) {
             try {
                 return Float.parseFloat(value);
             } catch(NumberFormatException e) {
@@ -50,9 +50,9 @@ public interface TypeParser<T> {
         }
     }
 
-    class DoubleParser implements TypeParser<Double> {
+    class DoubleArgumentParser implements CommandArgumentParser<Double> {
         @Override
-        public Double parse(String value) {
+        public Double parseArgument(String value) {
             try {
                 return Double.parseDouble(value);
             } catch(NumberFormatException e) {

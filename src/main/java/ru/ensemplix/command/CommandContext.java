@@ -13,24 +13,24 @@ public class CommandContext {
      * Название команды, которое хочет выполнить пользователь.
      */
     @Getter
-    private String name;
+    private final String name;
 
     /**
      * Команда, которую пользователь хочет выполнить.
      */
     @Getter
-    private CommandAction action;
+    private final CommandAction action;
 
     /**
      * Аргументы для команды, которые передал пользователь в строке.
      */
     @Getter
-    private String[] args;
+    private final String[] args;
 
     /**
      * Обработчик, который содержит информацию о вызываемой команде.
      */
     @Getter
-    private CommandHandler handler;
+    private final CommandHandler handler;
 
 }

@@ -7,7 +7,7 @@ import org.junit.rules.ExpectedException;
 import ru.ensemplix.command.region.Region;
 import ru.ensemplix.command.region.RegionCommand;
 import ru.ensemplix.command.region.RegionCompleter;
-import ru.ensemplix.command.region.RegionParser;
+import ru.ensemplix.command.region.RegionArgumentParser;
 import ru.ensemplix.command.simple.SimpleCommand;
 import ru.ensemplix.command.simple.SimpleSender;
 
@@ -16,14 +16,14 @@ import static org.junit.Assert.*;
 public class CommandDispatcherTest {
 
     @Rule
-    public ExpectedException expected = ExpectedException.none();
+    public final ExpectedException expected = ExpectedException.none();
 
-    private CommandDispatcher dispatcher = new CommandDispatcher();
-    private CommandSender sender = new SimpleSender();
+    private final CommandDispatcher dispatcher = new CommandDispatcher();
+    private final CommandSender sender = new SimpleSender();
 
     @Before
     public void setUp() {
-        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.bind(Region.class, new RegionArgumentParser());
         dispatcher.bind(Region.class, new RegionCompleter());
     }
 
@@ -69,7 +69,7 @@ public class CommandDispatcherTest {
     public void testTypeParser() throws CommandException {
         RegionCommand region = new RegionCommand();
 
-        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.bind(Region.class, new RegionArgumentParser());
         dispatcher.register(region, "parser");
 
         assertTrue(dispatcher.call(sender, "/parser Project:Id"));
@@ -80,7 +80,7 @@ public class CommandDispatcherTest {
     public void testTypeParserIterable() throws CommandException {
         RegionCommand region = new RegionCommand();
 
-        dispatcher.bind(Region.class, new RegionParser());
+        dispatcher.bind(Region.class, new RegionArgumentParser());
         dispatcher.register(region, "iterable");
 
         assertTrue(dispatcher.call(sender, "/iterable list home spawn koala"));

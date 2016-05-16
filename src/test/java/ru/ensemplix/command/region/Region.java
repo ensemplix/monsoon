@@ -5,6 +5,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class Region {
 
-    public String name;
+    public final String name;
 
 }
