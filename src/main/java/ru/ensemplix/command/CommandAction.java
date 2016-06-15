@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
  * Представляет действие (подпункт) команды.
  */
 @AllArgsConstructor
-public class CommandAction {
+class CommandAction {
 
     /**
      * Метод, к которому относится действие.

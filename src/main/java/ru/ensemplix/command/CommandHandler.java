@@ -9,7 +9,7 @@ import java.util.Map;
  * Содержит в себе результат парсинга объекта на команды.
  */
 @AllArgsConstructor
-public class CommandHandler {
+class CommandHandler {
 
     /**
      * Основное название команды.
