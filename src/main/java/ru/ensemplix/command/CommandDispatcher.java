@@ -211,13 +211,14 @@ public class CommandDispatcher {
         }
 
         Parameter[] parameters = context.getAction().getMethod().getParameters();
+        Class<?> parameterType = parameters[i].getType();
         CommandCompleter completer;
 
-        if(Iterable.class.isAssignableFrom(parameters[i].getType())) {
+        if(Iterable.class.isAssignableFrom(parameterType) || Argument.class.isAssignableFrom(parameterType)) {
             ParameterizedType type = (ParameterizedType) parameters[i].getParameterizedType();
             completer = completers.get(type.getActualTypeArguments()[0]);
         } else {
-            completer = completers.get(parameters[i].getType());
+            completer = completers.get(parameterType);
         }
 
         if (completer != null) {
