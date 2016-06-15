@@ -3,6 +3,9 @@ package ru.ensemplix.command;
 import com.google.common.base.CharMatcher;
 import ru.ensemplix.command.argument.Argument;
 import ru.ensemplix.command.argument.ArgumentParser;
+import ru.ensemplix.command.exception.CommandAccessException;
+import ru.ensemplix.command.exception.CommandException;
+import ru.ensemplix.command.exception.CommandNotFoundException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;

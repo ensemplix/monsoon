@@ -1,4 +1,4 @@
-package ru.ensemplix.command;
+package ru.ensemplix.command.exception;
 
 /**
  * Данное исключение выбрасывается если команда не найдена.

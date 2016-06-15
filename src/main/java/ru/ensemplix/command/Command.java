@@ -1,5 +1,7 @@
 package ru.ensemplix.command;
 
+import ru.ensemplix.command.exception.CommandAccessException;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

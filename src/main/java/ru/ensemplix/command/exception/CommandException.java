@@ -1,4 +1,4 @@
-package ru.ensemplix.command;
+package ru.ensemplix.command.exception;
 
 /**
  * Обертка для ошибок:

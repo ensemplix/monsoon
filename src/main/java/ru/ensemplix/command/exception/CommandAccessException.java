@@ -1,4 +1,4 @@
-package ru.ensemplix.command;
+package ru.ensemplix.command.exception;
 
 /**
  * Исключение выбрасывается если игрок не имеет необходимый
