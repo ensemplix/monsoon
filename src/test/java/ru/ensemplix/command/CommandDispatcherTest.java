@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import ru.ensemplix.command.argument.Argument;
 import ru.ensemplix.command.argument.ArgumentParser.EnumArgumentParser;
 import ru.ensemplix.command.exception.CommandAccessException;
 import ru.ensemplix.command.exception.CommandException;
@@ -14,6 +15,8 @@ import ru.ensemplix.command.region.RegionCommand;
 import ru.ensemplix.command.region.RegionCompleter;
 import ru.ensemplix.command.simple.SimpleCommand;
 import ru.ensemplix.command.simple.SimpleSender;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static ru.ensemplix.command.argument.Argument.Result.FAIL;
@@ -59,16 +62,16 @@ public class CommandDispatcherTest {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
 
-        assertTrue(dispatcher.call(sender, "/test"));
-        assertTrue(dispatcher.call(sender, "/test2"));
-        assertFalse(dispatcher.call(sender, "/test hello"));
-        assertTrue(dispatcher.call(sender, "/test2 integer 36"));
-        assertFalse(dispatcher.call(sender, "/test integer"));
-        assertTrue(dispatcher.call(sender, "/test2 string koala"));
-        assertTrue(dispatcher.call(sender, "/test collection i love ensemplix <3"));
-        assertTrue(dispatcher.call(sender, "/test2 argument koala"));
-        assertTrue(dispatcher.call(sender, "/test2 argument2"));
-        assertTrue(dispatcher.call(sender, "/test2 enumm world"));
+        assertTrue(call("/test"));
+        assertTrue(call("/test2"));
+        assertFalse(call("/test hello"));
+        assertTrue(call("/test2 integer 36"));
+        assertFalse(call("/test integer"));
+        assertTrue(call("/test2 string koala"));
+        assertTrue(call("/test collection i love ensemplix <3"));
+        assertTrue(call("/test2 argument koala"));
+        assertTrue(call("/test2 argument2"));
+        assertTrue(call("/test2 enumm world"));
 
         assertTrue(command.hello && command.test);
         assertEquals(36, command.integer);
@@ -83,13 +86,31 @@ public class CommandDispatcherTest {
     }
 
     @Test
+    public void testCommandResult() throws CommandException {
+        SimpleCommand command = new SimpleCommand();
+        dispatcher.register(command, "test", "test2");
+
+        CommandResult result = dispatcher.call(sender, "/test2 integer 36");
+        CommandContext context = result.getContext();
+        List<Argument<?>> arguments = result.getArguments();
+
+        assertTrue(result.isSuccess());
+        assertEquals("test", context.getCommandName());
+        assertEquals("integer", context.getActionName());
+        assertTrue(arguments.size() == 1);
+        assertEquals(SUCCESS, arguments.get(0).getResult());
+        assertEquals(36, arguments.get(0).getValue());
+        assertEquals("36", arguments.get(0).getText());
+    }
+
+    @Test
     public void testTypeParser() throws CommandException {
         RegionCommand region = new RegionCommand();
 
         dispatcher.bind(Region.class, new RegionArgumentParser());
         dispatcher.register(region, "parser");
 
-        assertTrue(dispatcher.call(sender, "/parser Project:Id"));
+        assertTrue(call("/parser Project:Id"));
         assertEquals("Project:Id", region.name);
     }
 
@@ -100,7 +121,7 @@ public class CommandDispatcherTest {
         dispatcher.bind(Region.class, new RegionArgumentParser());
         dispatcher.register(region, "iterable");
 
-        assertTrue(dispatcher.call(sender, "/iterable list home spawn koala"));
+        assertTrue(call("/iterable list home spawn koala"));
         assertEquals(3, region.list.size());
     }
 
@@ -279,34 +300,34 @@ public class CommandDispatcherTest {
 
     @Test(expected = CommandNotFoundException.class)
     public void testCallCmdNull() throws CommandException {
-        dispatcher.call(sender, null);
+        call(null);
     }
 
     @Test(expected = CommandNotFoundException.class)
     public void testCallCmdEmpty() throws CommandException {
-        dispatcher.call(sender, "");
+        call("");
     }
 
     @Test(expected = CommandNotFoundException.class)
     public void testCallCmdEmptyPrefixed() throws CommandException {
-        dispatcher.call(sender, "/");
+        call("/");
     }
 
     @Test(expected = CommandNotFoundException.class)
     public void testCallCommandNotFound() throws CommandException {
-        dispatcher.call(sender, "not existing command");
+        call("not existing command");
     }
 
     @Test(expected = CommandNotFoundException.class)
     public void testCallCommandNoMain() throws CommandException {
         dispatcher.register(new NoMain(), "no_main");
-        dispatcher.call(sender, "/no_main");
+        call("/no_main");
     }
 
     @Test(expected = CommandAccessException.class)
     public void testCallCommandNoAccess() throws CommandException {
         dispatcher.register(new Access(), "access");
-        dispatcher.call(sender, "/access");
+        call("/access");
     }
 
     @Test
@@ -314,7 +335,7 @@ public class CommandDispatcherTest {
         Main main = new Main();
 
         dispatcher.register(main, "main");
-        dispatcher.call(sender, "/main bro");
+        call("/main bro");
 
         assertTrue(main.main);
     }
@@ -322,7 +343,11 @@ public class CommandDispatcherTest {
     @Test(expected = RuntimeException.class)
     public void testCallPropagateException() throws CommandException {
         dispatcher.register(new PropagateException(), "exception");
-        dispatcher.call(sender, "/exception");
+        call("/exception");
+    }
+
+    public boolean call(String command) throws CommandException {
+        return dispatcher.call(sender, command).isSuccess();
     }
 
     public class InvalidReturn {

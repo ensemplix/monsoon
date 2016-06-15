@@ -76,7 +76,7 @@ public class CommandDispatcher {
      * @throws CommandException Выбрасывает исключение, если команды не
      * существует или нет разрешения на ее выполнение.
      */
-    public boolean call(CommandSender sender, String cmd) throws CommandException {
+    public CommandResult call(CommandSender sender, String cmd) throws CommandException {
         CommandContext context = validate(sender, cmd);
         CommandAction action = context.getAction();
 
@@ -90,6 +90,7 @@ public class CommandDispatcher {
         Parameter[] parameters = method.getParameters();
         int length = parameters.length;
 
+        List<Argument<?>> arguments = new ArrayList<>();
         Object[] parsed = new Object[length];
         parsed[0] = sender;
 
@@ -116,6 +117,12 @@ public class CommandDispatcher {
                     } else {
                         collection.add(argument.getValue());
                     }
+
+                    if(argument.getText() == null) {
+                        argument.setText(args[y]);
+                    }
+
+                    arguments.add(argument);
                 }
 
                 parsed[i] = collection;
@@ -125,6 +132,10 @@ public class CommandDispatcher {
 
                 if (args.length + 1 > i) {
                     argument = parser.parseArgument(args[i - 1]);
+
+                    if(argument.getText() == null) {
+                       argument.setText(args[i - 1]);
+                    }
                 } else {
                     argument = parser.parseArgument(null);
                 }
@@ -134,13 +145,17 @@ public class CommandDispatcher {
                 } else {
                     parsed[i] = argument.getValue();
                 }
+
+                arguments.add(argument);
             }
         }
 
         // Выполняем команду.
         try {
+            // Если возвращает void, то считаем что результат выполнения команды всегда положительный.
             Object result = method.invoke(context.getHandler().getObject(), parsed);
-            return result == null || (boolean) result;
+            boolean success = result == null || (boolean) result;
+            return new CommandResult(context, arguments, success);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -174,7 +189,7 @@ public class CommandDispatcher {
             return names;
         }
 
-        String action = context.getName();
+        String action = context.getActionName();
         String[] args = context.getArgs();
 
         if(action == null && context.getHandler().getMain() == null) {
@@ -271,7 +286,7 @@ public class CommandDispatcher {
             }
         }
 
-        return new CommandContext(actionName, action, args, handler);
+        return new CommandContext(handler.getName(), actionName, action, args, handler);
     }
 
     /**

@@ -10,10 +10,16 @@ import lombok.Getter;
 public class CommandContext {
 
     /**
-     * Название команды, которое хочет выполнить пользователь.
+     * Название команды, действие которого пользователь хочет выполнить.
      */
     @Getter
-    private final String name;
+    private final String commandName;
+
+    /**
+     * Название действия, которое хочет выполнить пользователь.
+     */
+    @Getter
+    private final String actionName;
 
     /**
      * Действие, которое пользователь хочет выполнить.

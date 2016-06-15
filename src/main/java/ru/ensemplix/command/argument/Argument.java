@@ -2,6 +2,7 @@ package ru.ensemplix.command.argument;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Необязательная механика в аргументах команды, чтобы знать как прошла
@@ -39,6 +40,17 @@ public class Argument<T> {
      */
     @Getter
     private final T value;
+
+    /**
+     * Аргумент, который использовался для конвертации.
+     */
+    @Setter @Getter
+    private String text;
+
+    public Argument(Result result, T value) {
+        this.result = result;
+        this.value = value;
+    }
 
     /**
      * Типы результата конвертации аргумента.
