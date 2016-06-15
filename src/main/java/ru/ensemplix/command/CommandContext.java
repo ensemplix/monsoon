@@ -16,7 +16,7 @@ public class CommandContext {
     private final String name;
 
     /**
-     * Команда, которую пользователь хочет выполнить.
+     * Действие, которое пользователь хочет выполнить.
      */
     @Getter
     private final CommandAction action;
