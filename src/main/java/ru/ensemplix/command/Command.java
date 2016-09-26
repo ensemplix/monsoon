@@ -1,7 +1,5 @@
 package ru.ensemplix.command;
 
-import ru.ensemplix.command.exception.CommandAccessException;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,7 +26,8 @@ public @interface Command {
      * Требуется ли для доступа к команде проверка прав.
      *
      * В случае если у пользователя нет необходимых прав, то будет брошено
-     * исключение {@link CommandAccessException} CommandAccessException.
+     * исключение {@link ru.ensemplix.command.exception.CommandAccessException}
+     * CommandAccessException.
      *
      * @return {@code true}, если требуется проверка прав.
      */

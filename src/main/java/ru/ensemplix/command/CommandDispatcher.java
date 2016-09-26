@@ -130,11 +130,11 @@ public class CommandDispatcher {
                 // Подготавливаем аргументы команды.
                 Argument argument;
 
-                if (args.length + 1 > i) {
+                if(args.length + 1 > i) {
                     argument = parser.parseArgument(args[i - 1]);
 
                     if(argument.getText() == null) {
-                       argument.setText(args[i - 1]);
+                        argument.setText(args[i - 1]);
                     }
                 } else {
                     argument = parser.parseArgument(null);
@@ -221,7 +221,7 @@ public class CommandDispatcher {
             completer = completers.get(parameterType);
         }
 
-        if (completer != null) {
+        if(completer != null) {
             return completer.complete(context, arg);
         }
 
@@ -319,7 +319,7 @@ public class CommandDispatcher {
         Map<String, CommandAction> actions = new HashMap<>();
         CommandAction main = null;
 
-        for (Method method : object.getClass().getMethods()) {
+        for(Method method : object.getClass().getMethods()) {
             Command annotation = method.getAnnotation(Command.class);
 
             // Команда обязательно должна быть помечена аннотацией @Command.

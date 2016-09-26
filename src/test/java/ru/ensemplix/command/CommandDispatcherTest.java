@@ -141,9 +141,9 @@ public class CommandDispatcherTest {
     @Test
     public void testCompleteObjectWithArgument() throws CommandException {
         RegionCommand region = new RegionCommand();
-        dispatcher.register(region, "object2");
+        dispatcher.register(region, "object3");
 
-        String[] regions = dispatcher.complete(sender, "/object2 remove").toArray(new String[4]);
+        String[] regions = dispatcher.complete(sender, "/object3 remove").toArray(new String[4]);
 
         assertEquals("home", regions[0]);
         assertEquals("spawn", regions[1]);
