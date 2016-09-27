@@ -20,7 +20,7 @@ import lombok.Setter;
  * Мы не можем убедится, что имя игрока было передано.
  *
  * <pre><code>
- * public void give(CommandSender sender, Argument<Player> target, Item item)
+ * public void give(CommandSender sender, Argument&lt;Player&gt; target, Item item)
  * </code></pre>
  *
  * Теперь, если не был передан аргумент с ником игрока, то аргумент будет равен {@code null}.
