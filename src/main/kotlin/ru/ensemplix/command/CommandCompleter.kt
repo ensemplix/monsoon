@@ -1,12 +1,10 @@
-package ru.ensemplix.command;
-
-import java.util.Collection;
+package ru.ensemplix.command
 
 /**
  * Реализация данного интерфейса позволяет создавать автоматическое
  * дополнение команды.
  */
-public interface CommandCompleter {
+interface CommandCompleter {
 
     /**
      * Автодополнение на основе переданной строки.
@@ -15,6 +13,6 @@ public interface CommandCompleter {
      * @param arg Часть строки, по которой мы будем искать.
      * @return Возвращает список возможных вариантов дополнения.
      */
-    Collection<String> complete(CommandContext context, String arg);
+    fun complete(context: CommandContext, arg: String): Collection<String>
 
 }

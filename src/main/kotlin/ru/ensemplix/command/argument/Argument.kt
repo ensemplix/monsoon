@@ -1,9 +1,7 @@
-package ru.ensemplix.command.argument;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
+package ru.ensemplix.command.argument
+import lombok.AllArgsConstructor
+import lombok.Getter
+import lombok.Setter
 /**
  * Необязательная механика в аргументах команды, чтобы знать как прошла
  * конвертация в аргумент.
@@ -27,46 +25,21 @@ import lombok.Setter;
  * Если в ходе конвертации не нашелся игрок, то result будет {@code FAIL}.
  */
 @AllArgsConstructor
-public class Argument<T> {
-
-    /**
-     * Результат конвертации аргумента.
-     */
-    @Getter
-    private final Result result;
-
-    /**
-     * Значение, которое получили в результате конвертации.
-     */
-    @Getter
-    private final T value;
-
-    /**
-     * Аргумент, который использовался для конвертации.
-     */
-    @Setter @Getter
-    private String text;
-
-    public Argument(Result result, T value) {
-        this.result = result;
-        this.value = value;
-    }
+class Argument<T>(val result: Argument.Result, val value: T?) {
+    var text: String? = null
 
     /**
      * Типы результата конвертации аргумента.
      */
-    public enum Result {
-
+    enum class Result {
         /**
          * Аргумент успешно конвертирован.
          */
         SUCCESS,
-
         /**
          * Не удалось конвертировать аргумент.
          */
         FAIL
-
     }
 
 }

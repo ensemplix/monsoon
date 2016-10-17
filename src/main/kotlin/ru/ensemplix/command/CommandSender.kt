@@ -1,9 +1,9 @@
-package ru.ensemplix.command;
+package ru.ensemplix.command
 
 /**
  * Пользователь который отправил команду.
  */
-public interface CommandSender {
+interface CommandSender {
 
     /**
      * Отправить сообщение пользователю.
@@ -11,7 +11,7 @@ public interface CommandSender {
      * @param message Сообщение, которое отправляем пользователю.
      * @param args Аргументы, которые будут подставлены в строку.
      */
-    void sendMessage(String message, Object... args);
+    fun sendMessage(message: String, vararg args: Any)
 
     /**
      * Может ли пользователь выполнять указанную команду.
@@ -20,6 +20,6 @@ public interface CommandSender {
      * @param action Действие, которе пытается выполнить пользователь.
      * @return {@code true}, если может выполнять команду.
      */
-    boolean canUseCommand(String command, String action);
+    fun canUseCommand(command: String, action: String): Boolean
 
 }

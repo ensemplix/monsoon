@@ -1,4 +1,4 @@
-package ru.ensemplix.command.exception;
+package ru.ensemplix.command.exception
 
 /**
  * Обертка для ошибок:
@@ -6,6 +6,4 @@ package ru.ensemplix.command.exception;
  * {@link CommandNotFoundException} CommandNotFoundException.
  * {@link CommandAccessException} CommandAccessException.
  */
-public class CommandException extends Exception {
-
-}
+open class CommandException : Exception()
