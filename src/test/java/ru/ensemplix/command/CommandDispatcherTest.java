@@ -115,14 +115,15 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testTypeParserIterable() throws CommandException {
+    public void testCompleteObjectPartial() throws CommandException {
         RegionCommand region = new RegionCommand();
+        dispatcher.register(region, "object");
 
-        dispatcher.bind(Region.class, new RegionArgumentParser());
-        dispatcher.register(region, "iterable");
+        String[] regions = dispatcher.complete(sender, "object sp").toArray(new String[3]);
 
-        assertTrue(call("iterable list home spawn koala"));
-        assertEquals(3, region.list.size());
+        assertEquals("spawn", regions[0]);
+        assertEquals("spawn123", regions[1]);
+        assertEquals("spb", regions[2]);
     }
 
     @Test
@@ -152,15 +153,14 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteObjectPartial() throws CommandException {
+    public void testTypeParserIterable() throws CommandException {
         RegionCommand region = new RegionCommand();
-        dispatcher.register(region, "object");
 
-        String[] regions = dispatcher.complete(sender, "object sp").toArray(new String[3]);
+        dispatcher.bind(Region.class, new RegionArgumentParser());
+        dispatcher.register(region, "iterable");
 
-        assertEquals("spawn", regions[0]);
-        assertEquals("spawn123", regions[1]);
-        assertEquals("spb", regions[2]);
+        assertTrue(call("iterable list home spawn koala"));
+        assertEquals(3, region.list.size());
     }
 
     @Test
