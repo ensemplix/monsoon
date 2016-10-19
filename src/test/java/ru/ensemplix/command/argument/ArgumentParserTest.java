@@ -79,9 +79,9 @@ public class ArgumentParserTest {
     @Test
     public void testEnumParser() {
         EnumArgumentParser parser = new EnumArgumentParser(Result.class);
-        Argument<Enum> result = parser.parseArgument("success");
-        Argument<Enum> result2 = parser.parseArgument("0");
-        Argument<Enum> result3 = parser.parseArgument("string");
+        Argument<Enum<?>> result = parser.parseArgument("success");
+        Argument<Enum<?>> result2 = parser.parseArgument("0");
+        Argument<Enum<?>> result3 = parser.parseArgument("string");
 
         assertEquals(SUCCESS, result.getResult());
         assertEquals(SUCCESS, result.getValue());

@@ -1,6 +1,4 @@
 package ru.ensemplix.command
-import com.google.common.base.CharMatcher
-import com.google.common.base.Preconditions.checkNotNull
 import ru.ensemplix.command.argument.Argument
 import ru.ensemplix.command.argument.ArgumentParser
 import ru.ensemplix.command.argument.ArgumentParser.*
@@ -18,18 +16,21 @@ class CommandDispatcher(val removeFirstChar: Boolean = true) {
 
     companion object {
         /**
-         * Список автомачических дополнений команды.
-         */
-        val completers = HashMap<Class<*>, CommandCompleter>()
-
-        /**
          * Список команд.
          */
+        @JvmField
         val commands = HashMap<String, CommandHandler>()
+
+        /**
+         * Список автомачических дополнений команды.
+         */
+        @JvmField
+        val completers = HashMap<Class<*>, CommandCompleter>()
 
         /**
          * Список парсеров в объекты.
          */
+        @JvmField
         val parsers = HashMap<Class<*>, ArgumentParser<*>>()
     }
 
@@ -74,64 +75,60 @@ class CommandDispatcher(val removeFirstChar: Boolean = true) {
         val args = context.args
         val parameters = method.getParameters()
         val length = parameters.size
-        val arguments = ArrayList<String>()
+        val arguments = ArrayList<Argument<*>>()
         val parsed = arrayOfNulls<Any>(length)
         parsed[0] = sender
 
         for (i in 1..length - 1) {
             val parameterType = parameters[i].getType()
-            val parser: ArgumentParser
+            val parser: ArgumentParser<*>?
 
-            if (Iterable<*>::class.java!!.isAssignableFrom(parameterType) || Argument::class.java!!.isAssignableFrom(parameterType)) {
+            if(Iterable::class.java.isAssignableFrom(parameterType) || Argument::class.java.isAssignableFrom(parameterType)) {
                 val type = parameters[i].getParameterizedType() as ParameterizedType
                 parser = parsers.get(type.getActualTypeArguments()[0])
             } else {
                 parser = parsers.get(parameterType)
             }
 
-            if (Iterable<*>::class.java!!.isAssignableFrom(parameterType)) {
+            if(Iterable::class.java.isAssignableFrom(parameterType)) {
                 // Подготоваливаем коллекцию.
-                val collection = ArrayList<Any>()
+                val collection = ArrayList<Any?>()
 
                 for (y in i - 1..args.size - 1) {
-                    val argument = parser.parseArgument(args[y])
-                    if (Argument::class.java!!.isAssignableFrom(parameterType)) {
+                    val argument = parser!!.parseArgument(args[y])
+
+                    if (Argument::class.java.isAssignableFrom(parameterType)) {
                         collection.add(argument)
                     } else {
-                        collection.add(argument.getValue())
+                        collection.add(argument.value)
                     }
 
-                    if(argument.getText() == null) {
-                        argument.setText(args[y])
+                    if(argument.text == null) {
+                        argument.text = args[y]
                     }
 
                     arguments.add(argument)
                 }
                 parsed[i] = collection
-            }
-            else {
+            } else {
                 // Подготавливаем аргументы команды.
-                val argument: Argument
-                if (args.size + 1 > i)
-                {
-                    argument = parser.parseArgument(args[i - 1])
-                    if (argument.getText() == null)
-                    {
-                        argument.setText(args[i - 1])
+                val argument: Argument<*>
+                if(args.size + 1 > i) {
+                    argument = parser!!.parseArgument(args[i - 1])
+                    if (argument.text == null) {
+                        argument.text = args[i - 1]
                     }
                 }
-                else
-                {
-                    argument = parser.parseArgument(null)
+                else {
+                    argument = parser!!.parseArgument(null)
                 }
-                if (Argument::class.java!!.isAssignableFrom(parameterType))
-                {
+
+                if (Argument::class.java.isAssignableFrom(parameterType)) {
                     parsed[i] = argument
+                } else {
+                    parsed[i] = argument.value
                 }
-                else
-                {
-                    parsed[i] = argument.getValue()
-                }
+
                 arguments.add(argument)
             }
         }
@@ -160,52 +157,49 @@ class CommandDispatcher(val removeFirstChar: Boolean = true) {
         } catch (e: CommandException) {
             val names = commands.keys
 
-            if (removeFirstChar) {
-                cmd = cmd.substring(1)
+            if(cmd.length > 0) {
+                //return names.stream().filter({ name-> name.startsWith(cmd) }).collect(Collectors.toList())
             }
-            val cmdFinal = cmd
-            if (cmd.length > 0) {
-                return names.stream().filter({ name-> name.startsWith(cmdFinal) }).collect(Collectors.toList())
-            }
+
             return names
         }
 
         val action = context.actionName
         val args = context.args
         if(action == null && context.handler.main == null) {
-            val actions = context.getHandler().getActions().keySet()
+            val actions = context.handler.actions.keys
             if (args.size == 1) {
-                return actions.stream().filter({ name-> name.startsWith(args[0]) }).collect(Collectors.toList())
+                //return actions.stream().filter({ name-> name.startsWith(args[0]) }).collect(Collectors.toList())
+                return actions
             } else {
                 return actions
             }
         }
 
-        val arg = ""
-        val i = 1
+        var arg = ""
+        var i = 1
 
         if(args.size > 0) {
             i = args.size
             arg = args[i - 1]
         }
 
-        val parameters = context.action.method.parameters
+        val parameters = context.action!!.method.parameters
         val parameterType = parameters[i].getType()
-        val completer:CommandCompleter
+        val completer: CommandCompleter?
 
-        if (Iterable<*>::class.java!!.isAssignableFrom(parameterType) || Argument::class.java!!.isAssignableFrom(parameterType))
-        {
+        if(Iterable::class.java.isAssignableFrom(parameterType) || Argument::class.java.isAssignableFrom(parameterType)) {
             val type = parameters[i].getParameterizedType() as ParameterizedType
             completer = completers.get(type.getActualTypeArguments()[0])
         }
-        else
-        {
+        else {
             completer = completers.get(parameterType)
         }
-        if (completer != null)
-        {
+
+        if (completer != null) {
             return completer.complete(context, arg)
         }
+
         return emptyList<String>()
     }
 
@@ -225,11 +219,7 @@ class CommandDispatcher(val removeFirstChar: Boolean = true) {
             throw CommandNotFoundException()
         }
 
-        if (removeFirstChar) {
-            cmd = cmd.substring(1)
-        }
-
-        val args = cmd.split((" ").toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
+        var args = cmd.split((" ").toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
         val handler = commands.get(args[0])
 
         if(handler == null) {
@@ -237,7 +227,7 @@ class CommandDispatcher(val removeFirstChar: Boolean = true) {
         }
 
         val actions = handler.actions
-        val action: CommandAction = null
+        var action: CommandAction? = null
 
         if(args.size > 1 && actions.containsKey(args[1])) {
             action = actions.get(args[1])
@@ -250,10 +240,10 @@ class CommandDispatcher(val removeFirstChar: Boolean = true) {
             }
         }
 
-        val actionName: String = null
+        var actionName: String? = null
 
         if (action != null) {
-            val main = handler.main.method
+            val main = handler.main!!.method
             val method = action.method
 
             if(main != null) {
@@ -261,13 +251,13 @@ class CommandDispatcher(val removeFirstChar: Boolean = true) {
             }
 
             if(action.annotation.permission) {
-                if(!sender.canUseCommand(handler.name, actionName)) {
+                if(!sender.canUseCommand(handler.name, actionName!!)) {
                     throw CommandAccessException()
                 }
             }
         }
 
-        return CommandContext(handler.name, actionName, action, args, handler)
+        return CommandContext(handler.name, actionName!!, action, args, handler)
     }
     /**
      * Регистрация команды происходит по методам, которые содержат аннотацию
@@ -284,9 +274,9 @@ class CommandDispatcher(val removeFirstChar: Boolean = true) {
                 throw IllegalArgumentException("Please provide valid command name")
             }
 
-            if(CharMatcher.WHITESPACE.matchesAnyOf(name)) {
-                throw IllegalArgumentException("Please provide command name with no whitespace")
-            }
+            //if(CharMatcher.WHITESPACE.matchesAnyOf(name)) {
+            //    throw IllegalArgumentException("Please provide command name with no whitespace")
+            //}
 
             if(commands.containsKey(name)) {
                 throw IllegalArgumentException("Command with name " + name + " already exists")

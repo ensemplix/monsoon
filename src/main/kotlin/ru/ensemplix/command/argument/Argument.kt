@@ -1,7 +1,5 @@
 package ru.ensemplix.command.argument
-import lombok.AllArgsConstructor
-import lombok.Getter
-import lombok.Setter
+
 /**
  * Необязательная механика в аргументах команды, чтобы знать как прошла
  * конвертация в аргумент.
@@ -24,8 +22,7 @@ import lombok.Setter
  * Теперь, если не был передан аргумент с ником игрока, то аргумент будет равен {@code null}.
  * Если в ходе конвертации не нашелся игрок, то result будет {@code FAIL}.
  */
-@AllArgsConstructor
-class Argument<T>(val result: Argument.Result, val value: T?) {
+class Argument<out T>(val result: Argument.Result, val value: T?) {
     var text: String? = null
 
     /**

@@ -303,14 +303,6 @@ public class CommandDispatcherTest {
         dispatcher.register(new IterableLastParameter());
     }
 
-    @Test
-    public void testCallSenderNull() throws CommandException {
-        expected.expect(NullPointerException.class);
-        expected.expectMessage("Please provide command sender");
-
-        dispatcher.call(null, null);
-    }
-
     @Test(expected = CommandNotFoundException.class)
     public void testCallCmdNull() throws CommandException {
         call(null);
