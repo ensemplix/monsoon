@@ -171,23 +171,30 @@ class CommandDispatcher {
             return names
         }
 
+        val actions = context.handler.actions.keys
         val action = context.actionName
         val args = context.args
-        if(action == null && context.handler.main == null) {
-            val actions = context.handler.actions.keys
-            if(args.size == 1) {
-                val matches = ArrayList<String>();
 
-                actions.forEach {
-                    if(it.startsWith(args[0])) {
-                        matches.add(it)
-                    }
+        if(args.size == 0 && action != null && cmd.last() != ' ') {
+            return emptyList()
+        }
+
+        if(args.size == 1 && action == null) {
+            val matches = ArrayList<String>();
+
+            actions.forEach {
+                if (it.startsWith(args[0])) {
+                    matches.add(it)
                 }
-
-                return matches;
-            } else {
-                return actions
             }
+
+            if(matches.isNotEmpty()) {
+                return matches;
+            }
+        }
+
+        if(action == null && context.handler.main == null) {
+            return actions
         }
 
         var arg = ""

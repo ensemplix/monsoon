@@ -127,24 +127,11 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteObject() throws CommandException {
+    public void testCompleteObjectWithArgument() throws CommandException {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "object2");
 
-        String[] regions = dispatcher.complete(sender, "object2").toArray(new String[4]);
-
-        assertEquals("home", regions[0]);
-        assertEquals("spawn", regions[1]);
-        assertEquals("spawn123", regions[2]);
-        assertEquals("spb", regions[3]);
-    }
-
-    @Test
-    public void testCompleteObjectWithArgument() throws CommandException {
-        RegionCommand region = new RegionCommand();
-        dispatcher.register(region, "object3");
-
-        String[] regions = dispatcher.complete(sender, "object3 remove").toArray(new String[4]);
+        String[] regions = dispatcher.complete(sender, "object2 remove ").toArray(new String[4]);
 
         assertEquals("home", regions[0]);
         assertEquals("spawn", regions[1]);
@@ -168,7 +155,7 @@ public class CommandDispatcherTest {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "iterable2");
 
-        String[] regions = dispatcher.complete(sender, "iterable2 list").toArray(new String[4]);
+        String[] regions = dispatcher.complete(sender, "iterable2 list ").toArray(new String[4]);
 
         assertEquals("home", regions[0]);
         assertEquals("spawn", regions[1]);
@@ -208,6 +195,13 @@ public class CommandDispatcherTest {
 
         assertEquals("add", actions[0]);
         assertEquals("addMember", actions[1]);
+    }
+
+    @Test
+    public void testCompleteActionsPartial2() throws CommandException {
+        dispatcher.register(new RegionCommand(), "actions3");
+
+        assertTrue(dispatcher.complete(sender, "actions3 remove").isEmpty());
     }
 
     @Test
