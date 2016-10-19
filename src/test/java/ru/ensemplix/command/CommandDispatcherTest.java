@@ -62,16 +62,16 @@ public class CommandDispatcherTest {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
 
-        assertTrue(call("/test"));
-        assertTrue(call("/test2"));
-        assertFalse(call("/test hello"));
-        assertTrue(call("/test2 integer 36"));
-        assertFalse(call("/test integer"));
-        assertTrue(call("/test2 string koala"));
-        assertTrue(call("/test collection i love ensemplix <3"));
-        assertTrue(call("/test2 argument koala"));
-        assertTrue(call("/test2 argument2"));
-        assertTrue(call("/test2 enumm world"));
+        assertTrue(call("test"));
+        assertTrue(call("test2"));
+        assertFalse(call("test hello"));
+        assertTrue(call("test2 integer 36"));
+        assertFalse(call("test integer"));
+        assertTrue(call("test2 string koala"));
+        assertTrue(call("test collection i love ensemplix <3"));
+        assertTrue(call("test2 argument koala"));
+        assertTrue(call("test2 argument2"));
+        assertTrue(call("test2 enumm world"));
 
         assertTrue(command.hello && command.test);
         assertEquals(36, command.integer);
@@ -90,7 +90,7 @@ public class CommandDispatcherTest {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
 
-        CommandResult result = dispatcher.call(sender, "/test2 integer 36");
+        CommandResult result = dispatcher.call(sender, "test2 integer 36");
         CommandContext context = result.getContext();
         List<Argument<?>> arguments = result.getArguments();
 
@@ -110,7 +110,7 @@ public class CommandDispatcherTest {
         dispatcher.bind(Region.class, new RegionArgumentParser());
         dispatcher.register(region, "parser");
 
-        assertTrue(call("/parser Project:Id"));
+        assertTrue(call("parser Project:Id"));
         assertEquals("Project:Id", region.name);
     }
 
@@ -121,7 +121,7 @@ public class CommandDispatcherTest {
         dispatcher.bind(Region.class, new RegionArgumentParser());
         dispatcher.register(region, "iterable");
 
-        assertTrue(call("/iterable list home spawn koala"));
+        assertTrue(call("iterable list home spawn koala"));
         assertEquals(3, region.list.size());
     }
 
@@ -130,7 +130,7 @@ public class CommandDispatcherTest {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "object2");
 
-        String[] regions = dispatcher.complete(sender, "/object2").toArray(new String[4]);
+        String[] regions = dispatcher.complete(sender, "object2").toArray(new String[4]);
 
         assertEquals("home", regions[0]);
         assertEquals("spawn", regions[1]);
@@ -143,7 +143,7 @@ public class CommandDispatcherTest {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "object3");
 
-        String[] regions = dispatcher.complete(sender, "/object3 remove").toArray(new String[4]);
+        String[] regions = dispatcher.complete(sender, "object3 remove").toArray(new String[4]);
 
         assertEquals("home", regions[0]);
         assertEquals("spawn", regions[1]);
@@ -156,7 +156,7 @@ public class CommandDispatcherTest {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "object");
 
-        String[] regions = dispatcher.complete(sender, "/object sp").toArray(new String[3]);
+        String[] regions = dispatcher.complete(sender, "object sp").toArray(new String[3]);
 
         assertEquals("spawn", regions[0]);
         assertEquals("spawn123", regions[1]);
@@ -168,7 +168,7 @@ public class CommandDispatcherTest {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "iterable2");
 
-        String[] regions = dispatcher.complete(sender, "/iterable2 list").toArray(new String[4]);
+        String[] regions = dispatcher.complete(sender, "iterable2 list").toArray(new String[4]);
 
         assertEquals("home", regions[0]);
         assertEquals("spawn", regions[1]);
@@ -181,7 +181,7 @@ public class CommandDispatcherTest {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "iterable3");
 
-        String[] regions = dispatcher.complete(sender, "/iterable3 list sp").toArray(new String[3]);
+        String[] regions = dispatcher.complete(sender, "iterable3 list sp").toArray(new String[3]);
 
         assertEquals("spawn", regions[0]);
         assertEquals("spawn123", regions[1]);
@@ -192,7 +192,7 @@ public class CommandDispatcherTest {
     public void testCompleteActions() throws CommandException {
         dispatcher.register(new Actions(), "actions");
 
-        String[] actions = dispatcher.complete(sender, "/actions").toArray(new String[4]);
+        String[] actions = dispatcher.complete(sender, "actions").toArray(new String[4]);
 
         assertEquals("add", actions[0]);
         assertEquals("addMember", actions[1]);
@@ -204,7 +204,7 @@ public class CommandDispatcherTest {
     public void testCompleteActionsPartial() throws CommandException {
         dispatcher.register(new Actions(), "actions2");
 
-        String[] actions = dispatcher.complete(sender, "/actions2 ad").toArray(new String[2]);
+        String[] actions = dispatcher.complete(sender, "actions2 ad").toArray(new String[2]);
 
         assertEquals("add", actions[0]);
         assertEquals("addMember", actions[1]);
@@ -215,7 +215,7 @@ public class CommandDispatcherTest {
         dispatcher.register(new SimpleCommand(), "simple");
         dispatcher.register(new SimpleCommand(), "simple2");
 
-        String[] commands = dispatcher.complete(sender, "/sim").toArray(new String[2]);
+        String[] commands = dispatcher.complete(sender, "sim").toArray(new String[2]);
 
         assertEquals("simple", commands[0]);
         assertEquals("simple2", commands[1]);
@@ -315,7 +315,7 @@ public class CommandDispatcherTest {
 
     @Test(expected = CommandNotFoundException.class)
     public void testCallCmdEmptyPrefixed() throws CommandException {
-        call("/");
+        call("");
     }
 
     @Test(expected = CommandNotFoundException.class)
@@ -326,13 +326,13 @@ public class CommandDispatcherTest {
     @Test(expected = CommandNotFoundException.class)
     public void testCallCommandNoMain() throws CommandException {
         dispatcher.register(new NoMain(), "no_main");
-        call("/no_main");
+        call("no_main");
     }
 
     @Test(expected = CommandAccessException.class)
     public void testCallCommandNoAccess() throws CommandException {
         dispatcher.register(new Access(), "access");
-        call("/access");
+        call("access");
     }
 
     @Test
@@ -340,7 +340,7 @@ public class CommandDispatcherTest {
         Main main = new Main();
 
         dispatcher.register(main, "main");
-        call("/main bro");
+        call("main bro");
 
         assertTrue(main.main);
     }
@@ -348,7 +348,7 @@ public class CommandDispatcherTest {
     @Test(expected = RuntimeException.class)
     public void testCallPropagateException() throws CommandException {
         dispatcher.register(new PropagateException(), "exception");
-        call("/exception");
+        call("exception");
     }
 
     public boolean call(String command) throws CommandException {
