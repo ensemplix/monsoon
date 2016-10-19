@@ -12,7 +12,7 @@ import java.util.stream.Collectors
 /**
  * Основной класс для работы с командами.
  */
-class CommandDispatcher(val removeFirstChar: Boolean = true) {
+class CommandDispatcher {
 
     companion object {
         /**
