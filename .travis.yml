@@ -3,5 +3,5 @@ jdk: oraclejdk8
 before_install: chmod +x gradlew
 install: ./gradlew check
 after_success:
-  - "[[ $TRAVIS_PULL_REQUEST == false ]] && [[ $TRAVIS_BRANCH == master ]] && gradle publish"
+  - "[[ $TRAVIS_PULL_REQUEST == false ]] && [[ $TRAVIS_BRANCH == v2.0 ]] && gradle publish"
   - bash <(curl -s https://codecov.io/bash)

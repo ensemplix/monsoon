@@ -1,8 +1,8 @@
 [travis]:https://travis-ci.org/Ensemplix/Monsoon
-[codecov]:https://codecov.io/github/Ensemplix/Monsoon?branch=master
+[codecov]:https://codecov.io/github/Ensemplix/Monsoon?branch=v2.0
 
-[travis img]:https://travis-ci.org/Ensemplix/Monsoon.svg?branch=master
-[codecov img]:https://codecov.io/github/Ensemplix/Monsoon/coverage.svg?branch=master
+[travis img]:https://travis-ci.org/Ensemplix/Monsoon.svg?branch=v2.0
+[codecov img]:https://codecov.io/github/Ensemplix/Monsoon/coverage.svg?branch=v2.0
 
 Monsoon [![][travis img]][travis] [![][codecov img]][codecov]
 ============
