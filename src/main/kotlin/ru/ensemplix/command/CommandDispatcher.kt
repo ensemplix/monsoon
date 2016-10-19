@@ -66,37 +66,37 @@ class CommandDispatcher {
         val context = validate(sender, cmd)
         val action = context.action
 
-        if (action == null) {
+        if(action == null) {
             throw CommandNotFoundException()
         }
 
         val method = action.method
         val args = context.args
-        val parameters = method.getParameters()
+        val parameters = method.parameters
         val length = parameters.size
         val arguments = ArrayList<Argument<*>>()
         val parsed = arrayOfNulls<Any>(length)
         parsed[0] = sender
 
-        for (i in 1..length - 1) {
-            val parameterType = parameters[i].getType()
+        for(i in 1..length - 1) {
+            val parameterType = parameters[i].type
             val parser: ArgumentParser<*>?
 
             if(Iterable::class.java.isAssignableFrom(parameterType) || Argument::class.java.isAssignableFrom(parameterType)) {
-                val type = parameters[i].getParameterizedType() as ParameterizedType
-                parser = parsers.get(type.getActualTypeArguments()[0])
+                val type = parameters[i].parameterizedType as ParameterizedType
+                parser = parsers[type.actualTypeArguments[0]]
             } else {
-                parser = parsers.get(parameterType)
+                parser = parsers[parameterType]
             }
 
             if(Iterable::class.java.isAssignableFrom(parameterType)) {
                 // Подготоваливаем коллекцию.
                 val collection = ArrayList<Any?>()
 
-                for (y in i - 1..args.size - 1) {
+                for(y in i - 1..args.size - 1) {
                     val argument = parser!!.parseArgument(args[y])
 
-                    if (Argument::class.java.isAssignableFrom(parameterType)) {
+                    if(Argument::class.java.isAssignableFrom(parameterType)) {
                         collection.add(argument)
                     } else {
                         collection.add(argument.value)
@@ -114,7 +114,7 @@ class CommandDispatcher {
                 val argument: Argument<*>
                 if(args.size + 1 > i) {
                     argument = parser!!.parseArgument(args[i - 1])
-                    if (argument.text == null) {
+                    if(argument.text == null) {
                         argument.text = args[i - 1]
                     }
                 }
@@ -122,7 +122,7 @@ class CommandDispatcher {
                     argument = parser!!.parseArgument(null)
                 }
 
-                if (Argument::class.java.isAssignableFrom(parameterType)) {
+                if(Argument::class.java.isAssignableFrom(parameterType)) {
                     parsed[i] = argument
                 } else {
                     parsed[i] = argument.value
@@ -175,7 +175,7 @@ class CommandDispatcher {
         val args = context.args
         if(action == null && context.handler.main == null) {
             val actions = context.handler.actions.keys
-            if (args.size == 1) {
+            if(args.size == 1) {
                 val matches = ArrayList<String>();
 
                 actions.forEach {
@@ -199,18 +199,17 @@ class CommandDispatcher {
         }
 
         val parameters = context.action!!.method.parameters
-        val parameterType = parameters[i].getType()
+        val parameterType = parameters[i].type
         val completer: CommandCompleter?
 
         if(Iterable::class.java.isAssignableFrom(parameterType) || Argument::class.java.isAssignableFrom(parameterType)) {
-            val type = parameters[i].getParameterizedType() as ParameterizedType
-            completer = completers.get(type.getActualTypeArguments()[0])
-        }
-        else {
-            completer = completers.get(parameterType)
+            val type = parameters[i].parameterizedType as ParameterizedType
+            completer = completers[type.actualTypeArguments[0]]
+        } else {
+            completer = completers[parameterType]
         }
 
-        if (completer != null) {
+        if(completer != null) {
             return completer.complete(context, arg)
         }
 
@@ -234,7 +233,7 @@ class CommandDispatcher {
         }
 
         var args = cmd.split((" ").toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
-        val handler = commands.get(args[0])
+        val handler = commands[args[0]]
 
         if(handler == null) {
             throw CommandNotFoundException()
@@ -244,7 +243,7 @@ class CommandDispatcher {
         var action: CommandAction? = null
 
         if(args.size > 1 && actions.containsKey(args[1])) {
-            action = actions.get(args[1])
+            action = actions[args[1]]
             args = Arrays.copyOfRange<String>(args, 2, args.size)
         } else {
             args = Arrays.copyOfRange<String>(args, 1, args.size)
@@ -256,7 +255,7 @@ class CommandDispatcher {
 
         var actionName: String? = null
 
-        if (action != null) {
+        if(action != null) {
             val main = handler.main
             val method = action.method
 
@@ -323,7 +322,7 @@ class CommandDispatcher {
 
             // Проверяем, что все параметры команды будут отработаны корректно.
             for(i in 1..length - 1)  {
-                var parameterType = parameters[i].getType()
+                var parameterType = parameters[i].type
 
                 if(Iterable::class.java.isAssignableFrom(parameterType)) {
                     if(i + 1 != length) {
@@ -331,8 +330,8 @@ class CommandDispatcher {
                     }
                 } else {
                     if(Argument::class.java.isAssignableFrom(parameterType)) {
-                        val type = parameters[i].getParameterizedType() as ParameterizedType
-                        parameterType = type.getActualTypeArguments()[0] as Class<*>
+                        val type = parameters[i].parameterizedType as ParameterizedType
+                        parameterType = type.actualTypeArguments[0] as Class<*>
                     }
 
                     if(!parsers.containsKey(parameterType)) {
@@ -346,7 +345,7 @@ class CommandDispatcher {
                 main = action
             }
 
-            actions.put(method.name, action)
+            actions[method.name] = action
         }
 
         if(actions.isEmpty()) {
@@ -354,7 +353,7 @@ class CommandDispatcher {
         }
 
         for(name in names) {
-            commands.put(name!!, CommandHandler(names[0]!!, obj, main, actions))
+            commands[name!!] = CommandHandler(names[0]!!, obj, main, actions)
         }
     }
 
@@ -380,7 +379,7 @@ class CommandDispatcher {
      * @param parser Парсер, который знает как парсить класс.
      */
     fun bind(clz: Class<*>, parser: ArgumentParser<*>) {
-        parsers.put(clz, parser)
+        parsers[clz] = parser
     }
 
     /**
@@ -390,6 +389,7 @@ class CommandDispatcher {
      * @param completer Дополнитель, который знает как дополнять класс.
      */
     fun bind(clz: Class<*>, completer: CommandCompleter) {
-        completers.put(clz, completer)
+        completers[clz] = completer
     }
+
 }

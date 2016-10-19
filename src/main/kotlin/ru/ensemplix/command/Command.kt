@@ -1,9 +1,11 @@
 package ru.ensemplix.command
 
+import kotlin.annotation.AnnotationTarget.*
+
 /**
  * С помощью этой аннотации мы обозначаем команду.
  */
-@Target(AnnotationTarget.FUNCTION)
+@Target(FUNCTION)
 annotation class Command(
 
         /**
@@ -26,4 +28,5 @@ annotation class Command(
          * @return {@code true}, если требуется проверка прав.
          */
          val permission: Boolean = false
+
 )
