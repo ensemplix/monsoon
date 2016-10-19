@@ -253,20 +253,15 @@ class CommandDispatcher {
             }
         }
 
-        var actionName: String? = null
+        val actionName: String? = if(action != null) action.method.name else null
 
         if(action != null) {
             val main = handler.main
             val method = action.method
+            val checkAction = if(main == null || main.method != method) method.name else null
 
-            if(main != null) {
-                actionName = if(main.method != method) method.name else null
-            }
-
-            if(action.annotation.permission) {
-                if(!sender.canUseCommand(handler.name, actionName)) {
-                    throw CommandAccessException()
-                }
+            if(action.annotation.permission && !sender.canUseCommand(handler.name, checkAction)) {
+                throw CommandAccessException()
             }
         }
 

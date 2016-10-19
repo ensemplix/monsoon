@@ -322,6 +322,18 @@ public class CommandDispatcherTest {
         call("access");
     }
 
+    @Test(expected = CommandAccessException.class)
+    public void testCallCommandNoAccessAllias() throws CommandException {
+        dispatcher.register(new Access(), "access2", "acc2");
+        call("acc2");
+    }
+
+    @Test(expected = CommandAccessException.class)
+    public void testCallCommandNoAccessAlliasAction() throws CommandException {
+        dispatcher.register(new Access2(), "access3", "acc3");
+        call("acc3 test");
+    }
+
     @Test
     public void testCallMain() throws CommandException {
         Main main = new Main();
@@ -389,6 +401,13 @@ public class CommandDispatcherTest {
     public class Access {
         @Command(main = true, permission = true)
         public void access(CommandSender sender) {
+
+        }
+    }
+
+    public class Access2 {
+        @Command(permission = true)
+        public void test(CommandSender sender) {
 
         }
     }
