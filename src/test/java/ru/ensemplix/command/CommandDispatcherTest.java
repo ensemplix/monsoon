@@ -222,14 +222,6 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testRegisterNoObject() {
-        expected.expect(NullPointerException.class);
-        expected.expectMessage("Please provide command object");
-
-        dispatcher.register(null, "name");
-    }
-
-    @Test
     public void testRegisterNameNull() {
         expected.expect(IllegalArgumentException.class);
         expected.expectMessage("Please provide valid command name");
@@ -301,11 +293,6 @@ public class CommandDispatcherTest {
         expected.expectMessage("Iterable must be last parameter in iterableLastParameter");
 
         dispatcher.register(new IterableLastParameter());
-    }
-
-    @Test(expected = CommandNotFoundException.class)
-    public void testCallCmdNull() throws CommandException {
-        call(null);
     }
 
     @Test(expected = CommandNotFoundException.class)

@@ -20,6 +20,6 @@ interface CommandSender {
      * @param action Действие, которе пытается выполнить пользователь.
      * @return {@code true}, если может выполнять команду.
      */
-    fun canUseCommand(command: String, action: String): Boolean
+    fun canUseCommand(command: String, action: String?): Boolean
 
 }

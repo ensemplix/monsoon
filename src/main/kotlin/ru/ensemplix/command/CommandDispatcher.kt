@@ -7,7 +7,6 @@ import ru.ensemplix.command.exception.CommandException
 import ru.ensemplix.command.exception.CommandNotFoundException
 import java.lang.reflect.ParameterizedType
 import java.util.*
-import java.util.stream.Collectors
 
 /**
  * Основной класс для работы с командами.
@@ -135,10 +134,10 @@ class CommandDispatcher {
         // Выполняем команду.
         try {
             // Если возвращает void, то считаем что результат выполнения команды всегда положительный.
-            val result = method.invoke(context.handler.obj, parsed)
+            val result = method.invoke(context.handler.obj, *parsed)
             val success = result == null || result as Boolean
             return CommandResult(context, arguments, success)
-        } catch (e:Exception) {
+        } catch (e: Exception) {
             throw RuntimeException(e)
         }
     }
@@ -158,7 +157,15 @@ class CommandDispatcher {
             val names = commands.keys
 
             if(cmd.length > 0) {
-                //return names.stream().filter({ name-> name.startsWith(cmd) }).collect(Collectors.toList())
+                val matches = ArrayList<String>();
+
+                names.forEach {
+                    if(it.startsWith(cmd)) {
+                        matches.add(it)
+                    }
+                }
+
+                return matches;
             }
 
             return names
@@ -169,8 +176,15 @@ class CommandDispatcher {
         if(action == null && context.handler.main == null) {
             val actions = context.handler.actions.keys
             if (args.size == 1) {
-                //return actions.stream().filter({ name-> name.startsWith(args[0]) }).collect(Collectors.toList())
-                return actions
+                val matches = ArrayList<String>();
+
+                actions.forEach {
+                    if(it.startsWith(args[0])) {
+                        matches.add(it)
+                    }
+                }
+
+                return matches;
             } else {
                 return actions
             }
@@ -215,7 +229,7 @@ class CommandDispatcher {
      */
     @Throws(CommandException::class)
     private fun validate(sender: CommandSender, cmd: String?): CommandContext {
-        if(cmd == null || cmd.length <= 1) {
+        if(cmd == null || cmd.isEmpty()) {
             throw CommandNotFoundException()
         }
 
@@ -243,21 +257,21 @@ class CommandDispatcher {
         var actionName: String? = null
 
         if (action != null) {
-            val main = handler.main!!.method
+            val main = handler.main
             val method = action.method
 
             if(main != null) {
-                actionName = if (main == method) null else method.getName()
+                actionName = if(main.method != method) method.name else null
             }
 
             if(action.annotation.permission) {
-                if(!sender.canUseCommand(handler.name, actionName!!)) {
+                if(!sender.canUseCommand(handler.name, actionName)) {
                     throw CommandAccessException()
                 }
             }
         }
 
-        return CommandContext(handler.name, actionName!!, action, args, handler)
+        return CommandContext(handler.name, actionName, action, args, handler)
     }
     /**
      * Регистрация команды происходит по методам, которые содержат аннотацию
@@ -270,13 +284,13 @@ class CommandDispatcher {
     fun register(obj: Any, vararg names: String?) {
         // Проверяем, что команды с таким именем еще нет.
         for(name in names) {
-            if(name == null || name.length <= 0) {
+            if(name == null || name.isEmpty()) {
                 throw IllegalArgumentException("Please provide valid command name")
             }
 
-            //if(CharMatcher.WHITESPACE.matchesAnyOf(name)) {
-            //    throw IllegalArgumentException("Please provide command name with no whitespace")
-            //}
+            if(name.contains(' ')) {
+                throw IllegalArgumentException("Please provide command name with no whitespace")
+            }
 
             if(commands.containsKey(name)) {
                 throw IllegalArgumentException("Command with name " + name + " already exists")
@@ -299,12 +313,12 @@ class CommandDispatcher {
                 throw IllegalArgumentException(method.getName() + " must return void or boolean")
             }
 
-            val parameters = method.getParameters()
+            val parameters = method.parameters
             val length = parameters.size
 
             // Первым параметром команды обязательно должен быть ее отправитель.
-            if(length == 0 || !CommandSender::class.java.isAssignableFrom(parameters[0].getType())) {
-                throw IllegalArgumentException("Please provide command sender for " + method.getName())
+            if(length == 0 || !CommandSender::class.java.isAssignableFrom(parameters[0].type)) {
+                throw IllegalArgumentException("Please provide command sender for " + method.name)
             }
 
             // Проверяем, что все параметры команды будут отработаны корректно.
@@ -313,7 +327,7 @@ class CommandDispatcher {
 
                 if(Iterable::class.java.isAssignableFrom(parameterType)) {
                     if(i + 1 != length) {
-                        throw IllegalArgumentException("Iterable must be last parameter in " + method.getName())
+                        throw IllegalArgumentException("Iterable must be last parameter in " + method.name)
                     }
                 } else {
                     if(Argument::class.java.isAssignableFrom(parameterType)) {
@@ -322,7 +336,7 @@ class CommandDispatcher {
                     }
 
                     if(!parsers.containsKey(parameterType)) {
-                        throw IllegalArgumentException("Please provide type parser for " + parameters[i].getType())
+                        throw IllegalArgumentException("Please provide type parser for " + parameters[i].type)
                     }
                 }
             }
@@ -332,7 +346,7 @@ class CommandDispatcher {
                 main = action
             }
 
-            actions.put(method.getName(), action)
+            actions.put(method.name, action)
         }
 
         if(actions.isEmpty()) {
@@ -340,7 +354,7 @@ class CommandDispatcher {
         }
 
         for(name in names) {
-            commands.put(name!!, CommandHandler(names[0]!!, obj, main!!, actions))
+            commands.put(name!!, CommandHandler(names[0]!!, obj, main, actions))
         }
     }
 
