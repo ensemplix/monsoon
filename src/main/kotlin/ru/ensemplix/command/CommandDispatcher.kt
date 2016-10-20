@@ -183,7 +183,7 @@ open class CommandDispatcher {
             val matches = ArrayList<String>();
 
             actions.forEach {
-                if (it.startsWith(args[0])) {
+                if(it.startsWith(args[0])) {
                     matches.add(it)
                 }
             }
