@@ -211,8 +211,8 @@ public class CommandDispatcherTest {
 
         String[] commands = dispatcher.complete(sender, "sim").toArray(new String[2]);
 
-        assertEquals("simple", commands[0]);
-        assertEquals("simple2", commands[1]);
+        assertEquals("/simple", commands[0]);
+        assertEquals("/simple2", commands[1]);
     }
 
     @Test

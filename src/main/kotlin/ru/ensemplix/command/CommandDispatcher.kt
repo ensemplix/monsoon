@@ -161,7 +161,7 @@ open class CommandDispatcher {
 
                 names.forEach {
                     if(it.startsWith(cmd)) {
-                        matches.add(it)
+                        matches.add("/$it")
                     }
                 }
 
