@@ -172,7 +172,7 @@ open class CommandDispatcher {
         }
 
         val actions = context.handler.actions.keys
-        val action = context.actionName
+        val action = context.action
         val args = context.args
 
         if(args.size == 0 && cmd.last() != ' ') {
@@ -189,7 +189,7 @@ open class CommandDispatcher {
             }
 
             if(matches.isNotEmpty()) {
-                return matches;
+                return matches
             }
         }
 
@@ -208,6 +208,14 @@ open class CommandDispatcher {
         val parameters = context.action!!.method.parameters
         val parameterType = parameters[i].type
         val completer: CommandCompleter?
+
+        if(!Iterable::class.java.isAssignableFrom(parameterType)) {
+            val argsLength = if(cmd.last() == ' ') args.size + 1 else args.size
+
+            if(argsLength > context.action.method.parameterCount - 1) {
+                return emptyList<String>()
+            }
+        }
 
         if(Iterable::class.java.isAssignableFrom(parameterType) || Argument::class.java.isAssignableFrom(parameterType)) {
             val type = parameters[i].parameterizedType as ParameterizedType

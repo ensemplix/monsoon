@@ -209,6 +209,13 @@ public class CommandDispatcherTest {
     }
 
     @Test
+    public void testCompleteNotRequired() throws CommandException {
+        dispatcher.register(new RegionCommand(), "actions6");
+
+        assertTrue(dispatcher.complete(sender, "actions6 remove home ").isEmpty());
+    }
+
+    @Test
     public void testCompleteCommandPartial() {
         dispatcher.register(new SimpleCommand(), "simple");
         dispatcher.register(new SimpleCommand(), "simple2");
