@@ -179,7 +179,7 @@ open class CommandDispatcher {
             return emptyList<String>()
         }
 
-        if(args.size == 1 && action == null) {
+        if(args.size == 1 && (action == null || context.handler.main != null)) {
             val matches = ArrayList<String>();
 
             actions.forEach {

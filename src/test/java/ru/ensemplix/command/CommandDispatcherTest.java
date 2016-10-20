@@ -176,7 +176,7 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteActionsPartial() throws CommandException {
+    public void testCompleteArgumentPartial() throws CommandException {
         dispatcher.register(new Actions(), "actions2");
 
         String[] actions = dispatcher.complete(sender, "actions2 ad").toArray(new String[2]);
@@ -186,17 +186,26 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteActionsPartial2() throws CommandException {
+    public void testCompleteAction() throws CommandException {
         dispatcher.register(new RegionCommand(), "actions3");
 
         assertTrue(dispatcher.complete(sender, "actions3 remove").isEmpty());
     }
 
     @Test
-    public void testCompleteCommand() throws CommandException {
-        dispatcher.register(new Actions(), "actions4");
+    public void testCompleteActionPartial() throws CommandException {
+        dispatcher.register(new RegionCommand(), "actions4");
 
-        assertTrue(dispatcher.complete(sender, "actions4").isEmpty());
+        String[] actions = dispatcher.complete(sender, "actions4 rem").toArray(new String[1]);
+
+        assertEquals("remove", actions[0]);
+    }
+
+    @Test
+    public void testCompleteCommand() throws CommandException {
+        dispatcher.register(new Actions(), "actions5");
+
+        assertTrue(dispatcher.complete(sender, "actions5").isEmpty());
     }
 
     @Test
