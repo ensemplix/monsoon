@@ -175,8 +175,8 @@ open class CommandDispatcher {
         val action = context.actionName
         val args = context.args
 
-        if(args.size == 0 && action != null && cmd.last() != ' ') {
-            return emptyList()
+        if(args.size == 0 && cmd.last() != ' ') {
+            return emptyList<String>()
         }
 
         if(args.size == 1 && action == null) {

@@ -176,18 +176,6 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteActions() throws CommandException {
-        dispatcher.register(new Actions(), "actions");
-
-        String[] actions = dispatcher.complete(sender, "actions").toArray(new String[4]);
-
-        assertEquals("add", actions[0]);
-        assertEquals("addMember", actions[1]);
-        assertEquals("view", actions[2]);
-        assertEquals("list", actions[3]);
-    }
-
-    @Test
     public void testCompleteActionsPartial() throws CommandException {
         dispatcher.register(new Actions(), "actions2");
 
@@ -205,7 +193,14 @@ public class CommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteCommand() {
+    public void testCompleteCommand() throws CommandException {
+        dispatcher.register(new Actions(), "actions4");
+
+        assertTrue(dispatcher.complete(sender, "actions4").isEmpty());
+    }
+
+    @Test
+    public void testCompleteCommandPartial() {
         dispatcher.register(new SimpleCommand(), "simple");
         dispatcher.register(new SimpleCommand(), "simple2");
 
