@@ -293,6 +293,14 @@ public class CommandDispatcherTest {
     }
 
     @Test
+    public void testRegisterNoTypeParser2() {
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Please provide type parser for class java.lang.Object");
+
+        dispatcher.register(new NoTypeParser2());
+    }
+
+    @Test
     public void testRegisterIterableLastParameter() {
         expected.expect(IllegalArgumentException.class);
         expected.expectMessage("Iterable must be last parameter in iterableLastParameter");
@@ -376,6 +384,13 @@ public class CommandDispatcherTest {
     public class NoTypeParser {
         @Command
         public boolean noTypeParser(CommandSender sender, Object obj) {
+            return true;
+        }
+    }
+
+    public class NoTypeParser2 {
+        @Command
+        public boolean noTypeParser2(CommandSender sender, Argument<Object> argument) {
             return true;
         }
     }

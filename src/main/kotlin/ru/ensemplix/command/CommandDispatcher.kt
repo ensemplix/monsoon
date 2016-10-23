@@ -345,7 +345,7 @@ open class CommandDispatcher {
                     }
 
                     if(!parsers.containsKey(parameterType)) {
-                        throw IllegalArgumentException("Please provide type parser for " + parameters[i].type)
+                        throw IllegalArgumentException("Please provide type parser for " + parameterType)
                     }
                 }
             }
