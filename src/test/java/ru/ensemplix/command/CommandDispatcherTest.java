@@ -147,7 +147,13 @@ public class CommandDispatcherTest {
         dispatcher.register(region, "iterable");
 
         assertTrue(call("iterable list home spawn koala"));
-        assertEquals(3, region.list.size());
+
+        List<Argument<Region>> regions = region.list;
+
+        assertEquals(3, regions.size());
+        assertEquals("home", regions.get(0).getValue().name);
+        assertEquals("spawn", regions.get(1).getValue().name);
+        assertEquals("koala", regions.get(2).getValue().name);
     }
 
     @Test

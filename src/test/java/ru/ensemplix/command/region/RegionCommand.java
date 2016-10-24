@@ -4,12 +4,12 @@ import ru.ensemplix.command.Command;
 import ru.ensemplix.command.CommandSender;
 import ru.ensemplix.command.argument.Argument;
 
-import java.util.Collection;
+import java.util.List;
 
 public class RegionCommand {
 
     public String name;
-    public Collection<Region> list;
+    public List<Argument<Region>> list;
 
     @Command(main = true)
     public void region(CommandSender sender, Region region) {
@@ -22,7 +22,7 @@ public class RegionCommand {
     }
 
     @Command
-    public void list(CommandSender sender, Collection<Region> list) {
+    public void list(CommandSender sender, List<Argument<Region>> list) {
         this.list = list;
     }
 

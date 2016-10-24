@@ -82,7 +82,16 @@ open class CommandDispatcher {
             val parameterType = parameters[i].type
             val parser: ArgumentParser<*>?
 
-            if(Iterable::class.java.isAssignableFrom(parameterType) || Argument::class.java.isAssignableFrom(parameterType)) {
+            if(Iterable::class.java.isAssignableFrom(parameterType)) {
+                val type = parameters[i].parameterizedType as ParameterizedType
+                val argumentType = type.actualTypeArguments[0]
+
+                if(argumentType is ParameterizedType && Argument::class.java.isAssignableFrom(argumentType.rawType as Class<*>)) {
+                    parser = parsers[argumentType.actualTypeArguments[0]]
+                } else {
+                    parser = parsers[argumentType]
+                }
+            } else if(Argument::class.java.isAssignableFrom(parameterType)) {
                 val type = parameters[i].parameterizedType as ParameterizedType
                 parser = parsers[type.actualTypeArguments[0]]
             } else {
@@ -94,9 +103,11 @@ open class CommandDispatcher {
                 val collection = ArrayList<Any?>()
 
                 for(y in i - 1..args.size - 1) {
+                    val type = parameters[i].parameterizedType as ParameterizedType
+                    val argumentType = type.actualTypeArguments[0]
                     val argument = parser!!.parseArgument(args[y])
 
-                    if(Argument::class.java.isAssignableFrom(parameterType)) {
+                    if(argumentType is ParameterizedType && Argument::class.java.isAssignableFrom(argumentType.rawType as Class<*>)) {
                         collection.add(argument)
                     } else {
                         collection.add(argument.value)
@@ -217,7 +228,16 @@ open class CommandDispatcher {
             }
         }
 
-        if(Iterable::class.java.isAssignableFrom(parameterType) || Argument::class.java.isAssignableFrom(parameterType)) {
+        if(Iterable::class.java.isAssignableFrom(parameterType)) {
+            val type = parameters[i].parameterizedType as ParameterizedType
+            val argumentType = type.actualTypeArguments[0]
+
+            if(argumentType is ParameterizedType && Argument::class.java.isAssignableFrom(argumentType.rawType as Class<*>)) {
+                completer = completers[argumentType.actualTypeArguments[0]]
+            } else {
+                completer = completers[argumentType]
+            }
+        } else if(Argument::class.java.isAssignableFrom(parameterType)) {
             val type = parameters[i].parameterizedType as ParameterizedType
             completer = completers[type.actualTypeArguments[0]]
         } else {
