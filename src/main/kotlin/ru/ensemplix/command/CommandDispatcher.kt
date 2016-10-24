@@ -128,8 +128,7 @@ open class CommandDispatcher {
                     if(argument.text == null) {
                         argument.text = args[i - 1]
                     }
-                }
-                else {
+                } else {
                     argument = parser!!.parseArgument(null)
                 }
 
