@@ -86,6 +86,30 @@ public class CommandDispatcherTest {
     }
 
     @Test
+    public void testCommandCallCaseSensivite() throws CommandException {
+        dispatcher.register(new SimpleCommand(), "test3");
+        dispatcher.call(sender, "teSt3");
+    }
+
+    @Test
+    public void testCommandRegisterCaseSensivite() throws CommandException {
+        dispatcher.register(new SimpleCommand(), "teSt4");
+        dispatcher.call(sender, "test4");
+    }
+
+    @Test
+    public void testActionCallCaseSensivite() throws CommandException {
+        dispatcher.register(new CaseSensivity(), "case");
+        dispatcher.call(sender, "case listall");
+    }
+
+    @Test
+    public void testActionRegisterCaseSensivite() throws CommandException {
+        dispatcher.register(new CaseSensivity(), "case2");
+        dispatcher.call(sender, "case2 liStaLl");
+    }
+
+    @Test
     public void testCommandResult() throws CommandException {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
@@ -111,7 +135,7 @@ public class CommandDispatcherTest {
         dispatcher.register(region, "parser");
 
         assertTrue(call("parser Project:Id"));
-        assertEquals("Project:Id", region.name);
+        assertEquals("project:id", region.name);
     }
 
     @Test
@@ -188,7 +212,7 @@ public class CommandDispatcherTest {
         String[] actions = dispatcher.complete(sender, "actions2 ad").toArray(new String[2]);
 
         assertEquals("add", actions[0]);
-        assertEquals("addMember", actions[1]);
+        assertEquals("addmember", actions[1]);
     }
 
     @Test
@@ -463,6 +487,13 @@ public class CommandDispatcherTest {
 
         @Command
         public void addMember(CommandSender sender) {
+
+        }
+    }
+
+    public class CaseSensivity {
+        @Command
+        public void listAll(CommandSender sender) {
 
         }
     }

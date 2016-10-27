@@ -266,7 +266,7 @@ open class CommandDispatcher {
             throw CommandNotFoundException()
         }
 
-        var args = cmd.split((" ").toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
+        var args = cmd.toLowerCase().split((" ").toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
         val handler = commands[args[0]]
 
         if(handler == null) {
@@ -287,12 +287,12 @@ open class CommandDispatcher {
             }
         }
 
-        val actionName: String? = if(action != null) action.method.name else null
+        val actionName: String? = if(action != null) action.method.name.toLowerCase() else null
 
         if(action != null) {
             val main = handler.main
             val method = action.method
-            val checkAction = if(main == null || main.method != method) method.name else null
+            val checkAction = if(main == null || main.method != method) method.name.toLowerCase() else null
 
             if(action.annotation.permission && !sender.canUseCommand(handler.name, checkAction)) {
                 throw CommandAccessException()
@@ -320,8 +320,8 @@ open class CommandDispatcher {
                 throw IllegalArgumentException("Please provide command name with no whitespace")
             }
 
-            if(commands.containsKey(name)) {
-                throw IllegalArgumentException("Command with name " + name + " already exists")
+            if(commands.containsKey(name.toLowerCase())) {
+                throw IllegalArgumentException("Command with name " + name.toLowerCase() + " already exists")
             }
         }
 
@@ -374,7 +374,7 @@ open class CommandDispatcher {
                 main = action
             }
 
-            actions[method.name] = action
+            actions[method.name.toLowerCase()] = action
         }
 
         if(actions.isEmpty()) {
@@ -382,7 +382,7 @@ open class CommandDispatcher {
         }
 
         for(name in names) {
-            commands[name!!] = CommandHandler(names[0]!!, obj, main, actions)
+            commands[name!!.toLowerCase()] = CommandHandler(names[0]!!.toLowerCase(), obj, main, actions)
         }
     }
 
