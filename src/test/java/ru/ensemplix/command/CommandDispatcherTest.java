@@ -393,6 +393,12 @@ public class CommandDispatcherTest {
         call("exception");
     }
 
+    @Test
+    public void testCallNotMain() throws CommandException {
+        dispatcher.register(new NotMain(), "notmain");
+        call("notmain delete");
+    }
+
     public boolean call(String command) throws CommandException {
         return dispatcher.call(sender, command).isSuccess();
     }
@@ -496,6 +502,19 @@ public class CommandDispatcherTest {
         public void listAll(CommandSender sender) {
 
         }
+    }
+
+    public class NotMain {
+        @Command(main = true)
+        public void set(SimpleSender player, String prefix) {
+            fail();
+        }
+
+        @Command
+        public void delete(SimpleSender sender, Argument<Region> argument) {
+
+        }
+
     }
 
 }
