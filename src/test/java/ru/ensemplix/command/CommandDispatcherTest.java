@@ -257,6 +257,17 @@ public class CommandDispatcherTest {
     }
 
     @Test
+    public void testCompleteCommands() {
+        dispatcher.register(new SimpleCommand(), "bcd");
+        dispatcher.register(new SimpleCommand(), "abc");
+
+        String[] commands = dispatcher.complete(sender, "").toArray(new String[2]);
+
+        assertEquals("/bcd", commands[0]);
+        assertEquals("/abc", commands[1]);
+    }
+
+    @Test
     public void testRegisterNameNull() {
         expected.expect(IllegalArgumentException.class);
         expected.expectMessage("Please provide valid command name");

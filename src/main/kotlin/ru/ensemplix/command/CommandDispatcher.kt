@@ -164,11 +164,10 @@ open class CommandDispatcher {
         try {
             context = validate(sender, cmd)
         } catch (e: CommandException) {
+            val matches = ArrayList<String>()
             val names = commands.keys
 
             if(cmd.length > 0) {
-                val matches = ArrayList<String>()
-
                 names.forEach {
                     if(it.startsWith(cmd)) {
                         matches.add("/$it")
@@ -178,7 +177,8 @@ open class CommandDispatcher {
                 return matches
             }
 
-            return names
+            names.forEach { matches.add("/$it") }
+            return matches
         }
 
         val actions = context.handler.actions.keys
