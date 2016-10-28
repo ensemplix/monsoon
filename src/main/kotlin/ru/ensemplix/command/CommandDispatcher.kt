@@ -167,7 +167,7 @@ open class CommandDispatcher {
             val names = commands.keys
 
             if(cmd.length > 0) {
-                val matches = ArrayList<String>();
+                val matches = ArrayList<String>()
 
                 names.forEach {
                     if(it.startsWith(cmd)) {
@@ -175,7 +175,7 @@ open class CommandDispatcher {
                     }
                 }
 
-                return matches;
+                return matches
             }
 
             return names
@@ -190,7 +190,7 @@ open class CommandDispatcher {
         }
 
         if(args.size == 1 && (action == null || context.handler.main != null)) {
-            val matches = ArrayList<String>();
+            val matches = ArrayList<String>()
 
             actions.forEach {
                 if(it.startsWith(args[0])) {
