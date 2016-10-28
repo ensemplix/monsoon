@@ -203,7 +203,7 @@ open class CommandDispatcher {
             }
         }
 
-        if(action == null && context.handler.mains.isNotEmpty()) {
+        if(action == null && context.handler.mains.isEmpty()) {
             return actions
         }
 
