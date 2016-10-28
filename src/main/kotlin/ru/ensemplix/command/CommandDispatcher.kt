@@ -189,7 +189,7 @@ open class CommandDispatcher {
             return emptyList<String>()
         }
 
-        if(args.size == 1 && (action == null || context.handler.main != null)) {
+        if(args.size == 1 && (action == null || context.handler.mains.isNotEmpty())) {
             val matches = ArrayList<String>()
 
             actions.forEach {
@@ -203,7 +203,7 @@ open class CommandDispatcher {
             }
         }
 
-        if(action == null && context.handler.main == null) {
+        if(action == null && context.handler.mains.isNotEmpty()) {
             return actions
         }
 
@@ -275,36 +275,25 @@ open class CommandDispatcher {
 
         val commandActions = handler.actions
         var action: CommandAction? = null
+        var main: CommandAction? = null
 
         if(args.size > 1 && commandActions.containsKey(args[1])) {
             val actions = commandActions[args[1]]!!
             args = Arrays.copyOfRange<String>(args, 2, args.size)
-
-            if(actions.size == 1) {
-                action = actions[0]
-            } else {
-                for(possibleAction in actions) {
-                    if(possibleAction.method.parameterCount - 1 >= args.size) {
-                        if(action != null && possibleAction.method.parameterCount > action.method.parameterCount) {
-                            continue
-                        }
-
-                        action = possibleAction
-                    }
-                }
-            }
+            action = chooseAction(actions, args.size)
         } else {
             args = Arrays.copyOfRange<String>(args, 1, args.size)
+            val mains =  handler.mains
 
-            if(handler.main != null) {
-                action = handler.main
+            if(mains.isNotEmpty()) {
+                action = chooseAction(mains, args.size)
+                main = action
             }
         }
 
         val actionName: String? = if(action != null) action.method.name.toLowerCase() else null
 
         if(action != null) {
-            val main = handler.main
             val method = action.method
             val checkAction = if(main == null || main.method != method) method.name.toLowerCase() else null
 
@@ -315,6 +304,27 @@ open class CommandDispatcher {
 
         return CommandContext(handler.name, actionName, action, args, handler)
     }
+
+    private fun chooseAction(actions: List<CommandAction?>, argsLength: Int): CommandAction {
+        if(actions.size == 1) {
+            return actions.first()!!
+        }
+
+        var action: CommandAction? = null
+
+        for(possibleAction in actions) {
+            if(possibleAction!!.method.parameterCount - 1 >= argsLength) {
+                if(action != null && possibleAction.method.parameterCount > action.method.parameterCount) {
+                    continue
+                }
+
+                action = possibleAction
+            }
+        }
+
+        return action!!
+    }
+
     /**
      * Регистрация команды происходит по методам, которые содержат аннотацию
      * {@link Command} @Command. Количество имен для команды неограничено.
@@ -340,7 +350,7 @@ open class CommandDispatcher {
         }
 
         val commandActions = HashMap<String, ArrayList<CommandAction>>()
-        var main: CommandAction? = null
+        val mains = ArrayList<CommandAction>()
 
         for(method in obj.javaClass.methods) {
             val annotation = method.getAnnotation(Command::class.java)
@@ -386,7 +396,7 @@ open class CommandDispatcher {
             val action = CommandAction(method, annotation)
 
             if(annotation.main) {
-                main = action
+                mains.add(action)
             }
 
             val methodName = method.name.toLowerCase()
@@ -403,7 +413,7 @@ open class CommandDispatcher {
         }
 
         for(name in names) {
-            commands[name!!.toLowerCase()] = CommandHandler(names[0]!!.toLowerCase(), obj, main, commandActions)
+            commands[name!!.toLowerCase()] = CommandHandler(names[0]!!.toLowerCase(), obj, mains, commandActions)
         }
     }
 

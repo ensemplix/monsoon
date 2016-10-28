@@ -5,5 +5,5 @@ package ru.ensemplix.command
  */
 class CommandHandler(val name: String,
                      val obj: Any,
-                     val main: CommandAction?,
+                     val mains: List<CommandAction?>,
                      val actions: Map<String, List<CommandAction>>)

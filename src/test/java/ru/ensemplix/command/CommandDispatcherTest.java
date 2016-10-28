@@ -420,6 +420,16 @@ public class CommandDispatcherTest {
         assertEquals("something", command.something);
     }
 
+    @Test
+    public void testCallMainActionRedirect() throws CommandException {
+        SameMainActionRedirect command = new SameMainActionRedirect();
+
+        dispatcher.register(command, "redirect2");
+        call("redirect2 del");
+
+        assertEquals("del", command.something);
+    }
+
     public boolean call(String command) throws CommandException {
         return dispatcher.call(sender, command).isSuccess();
     }
@@ -546,6 +556,21 @@ public class CommandDispatcherTest {
         }
 
         @Command
+        public void delete(SimpleSender sender, String something, Argument<Region> argument) {
+            fail();
+        }
+    }
+
+
+    public class SameMainActionRedirect {
+        public String something;
+
+        @Command(main = true)
+        public void delete(SimpleSender sender, String something) {
+            this.something = something;
+        }
+
+        @Command(main = true)
         public void delete(SimpleSender sender, String something, Argument<Region> argument) {
             fail();
         }
