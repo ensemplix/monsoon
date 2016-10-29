@@ -35,7 +35,6 @@ interface ArgumentParser<T> {
             } catch (e: NumberFormatException) {
                 return Argument(FAIL, 0)
             }
-
         }
     }
 
@@ -56,7 +55,6 @@ interface ArgumentParser<T> {
             } catch (e: NumberFormatException) {
                 return Argument(FAIL, 0f)
             }
-
         }
     }
 
@@ -67,7 +65,6 @@ interface ArgumentParser<T> {
             } catch (e: NumberFormatException) {
                 return Argument(FAIL, 0.0)
             }
-
         }
     }
 
