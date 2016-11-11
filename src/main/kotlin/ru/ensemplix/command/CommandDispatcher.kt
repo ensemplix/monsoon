@@ -12,7 +12,7 @@ import java.util.*
 /**
  * Основной класс для работы с командами.
  */
-open class CommandDispatcher {
+class CommandDispatcher {
 
     companion object {
         /**
