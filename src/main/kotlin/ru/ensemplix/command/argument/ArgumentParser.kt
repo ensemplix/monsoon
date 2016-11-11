@@ -7,7 +7,7 @@ import ru.ensemplix.command.argument.Argument.Result.SUCCESS
  * Реализация данного интерфейса позволяет конвертировать
  * строковый аргумент, отправленный игроком в нужный аргумент.
  */
-interface ArgumentParser<T> {
+interface ArgumentParser<out T> {
 
     /**
      * Конвертация строки в аргумент.
