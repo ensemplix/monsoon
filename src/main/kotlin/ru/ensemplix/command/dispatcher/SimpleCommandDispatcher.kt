@@ -1,5 +1,6 @@
-package ru.ensemplix.command
+package ru.ensemplix.command.dispatcher
 
+import ru.ensemplix.command.*
 import ru.ensemplix.command.argument.Argument
 import ru.ensemplix.command.argument.ArgumentParser
 import ru.ensemplix.command.argument.ArgumentParser.*
@@ -12,7 +13,7 @@ import java.util.*
 /**
  * Основной класс для работы с командами.
  */
-class CommandDispatcher {
+class SimpleCommandDispatcher : CommandDispatcher {
 
     companion object {
         /**
@@ -47,23 +48,8 @@ class CommandDispatcher {
         bind(java.lang.Double.TYPE, StringArgumentParser())
     }
 
-    /**
-     * Выполнение команды, отправленной пользователем, на основе отправленного текста.
-     *
-     * Если команда не существует или нет такого действия, то будет выброшено исключение.
-     * {@link CommandNotFoundException} CommandNotFoundException.
-     *
-     * Если пользователю нельзя выполнять указанную команду, то будет выброшено
-     * исключение {@link CommandAccessException} CommandAccessException.
-     *
-     * @param sender Отправитель команды.
-     * @param cmd Строка, которую отослал отправитель.
-     * @return {@code true}, если команда была выполнена без ошибок.
-     * @throws CommandException Выбрасывает исключение, если команды не
-     * существует или нет разрешения на ее выполнение.
-     */
     @Throws(CommandException::class)
-    fun call(sender: CommandSender, cmd: String): CommandResult {
+    override fun call(sender: CommandSender, cmd: String): CommandResult {
         val context = validate(sender, cmd)
         val action = context.action
 
@@ -152,14 +138,8 @@ class CommandDispatcher {
             throw RuntimeException(e)
         }
     }
-    /**
-     * Автоматическое дополнение команды на основе ввода пользователя.
-     *
-     * @param sender Отправитель команды.
-     * @param cmd Строка, которую отослал отправитель.
-     * @return Возвращает список возможных вариантов автодополнения.
-     */
-    fun complete(sender: CommandSender, cmd: String): Collection<String> {
+
+    override fun complete(sender: CommandSender, cmd: String): Collection<String> {
         val context: CommandContext
 
         try {
@@ -326,15 +306,7 @@ class CommandDispatcher {
         return action!!
     }
 
-    /**
-     * Регистрация команды происходит по методам, которые содержат аннотацию
-     * {@link Command} @Command. Количество имен для команды неограничено.
-     * Обязательно должна быть хотя бы одна команда.
-     *
-     * @param obj Объект, в котором мы ищем команды.
-     * @param names Названия команд.
-     */
-    fun register(obj: Any, vararg names: String?) {
+    override fun register(obj: Any, vararg names: String?) {
         // Проверяем, что команды с таким именем еще нет.
         for(name in names) {
             if(name == null || name.isEmpty()) {
@@ -418,12 +390,7 @@ class CommandDispatcher {
         }
     }
 
-    /**
-     * Удаляет все команды, связанные с выбранным классом.
-     *
-     * @param cls Класс, который мы удаляем из команд.
-     */
-    fun unregister(cls: Class<*>) {
+    override fun unregister(cls: Class<*>) {
         val iterator = commands.values.iterator()
 
         while(iterator.hasNext()) {
@@ -433,23 +400,11 @@ class CommandDispatcher {
         }
     }
 
-    /**
-     * Регистрация парсера для конвертации строки в объект.
-     *
-     * @param clz Класс, который мы будем конвертировать в объект.
-     * @param parser Парсер, который знает как парсить класс.
-     */
-    fun bind(clz: Class<*>, parser: ArgumentParser<*>) {
+    override fun bind(clz: Class<*>, parser: ArgumentParser<*>) {
         parsers[clz] = parser
     }
 
-    /**
-     * Регистрация дополнителя для автодополнения команды.
-     *
-     * @param clz Класс, который мы будем автодополнять.
-     * @param completer Дополнитель, который знает как дополнять класс.
-     */
-    fun bind(clz: Class<*>, completer: CommandCompleter) {
+    override fun bind(clz: Class<*>, completer: CommandCompleter) {
         completers[clz] = completer
     }
 

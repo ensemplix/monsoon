@@ -1,9 +1,10 @@
-package ru.ensemplix.command;
+package ru.ensemplix.command.dispatcher;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import ru.ensemplix.command.*;
 import ru.ensemplix.command.argument.Argument;
 import ru.ensemplix.command.argument.ArgumentParser.EnumArgumentParser;
 import ru.ensemplix.command.exception.CommandAccessException;
@@ -19,17 +20,15 @@ import ru.ensemplix.command.simple.SimpleSender;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static ru.ensemplix.command.argument.Argument.Result.FAIL;
-import static ru.ensemplix.command.argument.Argument.Result.SUCCESS;
 import static ru.ensemplix.command.simple.SimpleCommand.SimpleEnum;
 import static ru.ensemplix.command.simple.SimpleCommand.SimpleEnum.WORLD;
 
-public class CommandDispatcherTest {
+public class SimpleCommandDispatcherTest {
 
     @Rule
     public final ExpectedException expected = ExpectedException.none();
 
-    private final CommandDispatcher dispatcher = new CommandDispatcher();
+    private final SimpleCommandDispatcher dispatcher = new SimpleCommandDispatcher();
     private final CommandSender sender = new SimpleSender();
 
     @Before
@@ -44,7 +43,7 @@ public class CommandDispatcherTest {
         SimpleCommand command = new SimpleCommand();
 
         dispatcher.register(command, "register");
-        assertTrue(CommandDispatcher.commands.containsKey("register"));
+        assertTrue(SimpleCommandDispatcher.commands.containsKey("register"));
     }
 
     @Test
@@ -54,7 +53,7 @@ public class CommandDispatcherTest {
         dispatcher.register(command, "unregister");
         dispatcher.unregister(SimpleCommand.class);
 
-        assertFalse(CommandDispatcher.commands.containsKey("unregister"));
+        assertFalse(SimpleCommandDispatcher.commands.containsKey("unregister"));
     }
 
     @Test
@@ -76,9 +75,9 @@ public class CommandDispatcherTest {
         assertTrue(command.hello && command.test);
         assertEquals(36, command.integer);
         assertEquals("koala", command.string);
-        assertEquals(SUCCESS, command.argument.getResult());
+        assertEquals(Argument.Result.SUCCESS, command.argument.getResult());
         assertEquals("koala", command.argument.getValue());
-        assertEquals(FAIL, command.argument2.getResult());
+        assertEquals(Argument.Result.FAIL, command.argument2.getResult());
         assertNull(command.argument2.getValue());
         assertEquals(WORLD, command.enumm);
 
@@ -122,7 +121,7 @@ public class CommandDispatcherTest {
         assertEquals("test", context.getCommandName());
         assertEquals("integer", context.getActionName());
         assertTrue(arguments.size() == 1);
-        assertEquals(SUCCESS, arguments.get(0).getResult());
+        assertEquals(Argument.Result.SUCCESS, arguments.get(0).getResult());
         assertEquals(36, arguments.get(0).getValue());
         assertEquals("36", arguments.get(0).getText());
     }

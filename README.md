@@ -70,7 +70,7 @@ public class FooCommand {
 ```
 ```java
 // Создаем обработчик команд.
-CommandDispatcher dispatcher = new CommandDispatcher();
+CommandDispatcher dispatcher = new SimpleCommandDispatcher();
 // Регистрируем команду.
 dispatcher.register(new FooCommand(), "test");
 // Вызываем команду.
