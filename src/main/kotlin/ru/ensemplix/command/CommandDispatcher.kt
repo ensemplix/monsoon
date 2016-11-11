@@ -1,4 +1,5 @@
 package ru.ensemplix.command
+
 import ru.ensemplix.command.argument.Argument
 import ru.ensemplix.command.argument.ArgumentParser
 import ru.ensemplix.command.argument.ArgumentParser.*

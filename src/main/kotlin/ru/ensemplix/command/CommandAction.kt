@@ -1,4 +1,5 @@
 package ru.ensemplix.command
+
 import java.lang.reflect.Method
 
 /**
