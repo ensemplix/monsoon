@@ -46,6 +46,8 @@ class SimpleCommandDispatcher : CommandDispatcher {
         bind(java.lang.Float.TYPE, FloatArgumentParser())
         bind(Double::class.java, StringArgumentParser())
         bind(java.lang.Double.TYPE, StringArgumentParser())
+        bind(Long::class.java, LongArgumentParser())
+        bind(java.lang.Long.TYPE, LongArgumentParser())
     }
 
     @Throws(CommandException::class)

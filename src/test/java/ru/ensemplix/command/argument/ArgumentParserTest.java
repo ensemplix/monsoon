@@ -35,6 +35,18 @@ public class ArgumentParserTest {
     }
 
     @Test
+    public void testLongParser() {
+        LongArgumentParser parser = new LongArgumentParser();
+        Argument<Long> result = parser.parseArgument("12");
+        Argument<Long> result2 = parser.parseArgument("string");
+
+        assertEquals(SUCCESS, result.getResult());
+        assertEquals(12, (long) result.getValue());
+        assertEquals(FAIL, result2.getResult());
+        assertEquals(0, (long) result2.getValue());
+    }
+
+    @Test
     public void testBooleanParser() {
         BooleanArgumentParser parser = new BooleanArgumentParser();
         Argument<Boolean> result = parser.parseArgument("true");

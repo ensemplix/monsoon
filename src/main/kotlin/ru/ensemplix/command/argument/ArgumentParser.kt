@@ -38,6 +38,16 @@ interface ArgumentParser<out T> {
         }
     }
 
+    class LongArgumentParser : ArgumentParser<Long> {
+        override fun parseArgument(value: String?): Argument<Long> {
+            try {
+                return Argument(SUCCESS, java.lang.Long.parseLong(value))
+            } catch (e: NumberFormatException) {
+                return Argument(FAIL, 0)
+            }
+        }
+    }
+
     class BooleanArgumentParser : ArgumentParser<Boolean> {
         override fun parseArgument(value: String?): Argument<Boolean> {
             if (value == null || value.isEmpty()) {
