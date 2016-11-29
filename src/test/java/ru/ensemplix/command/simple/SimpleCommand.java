@@ -11,6 +11,7 @@ public class SimpleCommand {
     public boolean hello = false;
     public boolean test = false;
     public int integer;
+    public long longg;
     public String string;
     public Collection<String> strings;
     public Argument argument;
@@ -61,6 +62,11 @@ public class SimpleCommand {
     @Command
     public void enumm(CommandSender sender, SimpleEnum enumm) {
         this.enumm = enumm;
+    }
+
+    @Command
+    public void longg(CommandSender sender, Argument<Long> argument) {
+        longg = argument.getValue();
     }
 
     public enum SimpleEnum {

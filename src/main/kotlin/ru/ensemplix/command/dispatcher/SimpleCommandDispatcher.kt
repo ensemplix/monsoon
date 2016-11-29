@@ -39,15 +39,15 @@ class SimpleCommandDispatcher : CommandDispatcher {
         // Примитивные парсеры.
         bind(String::class.java, StringArgumentParser())
         bind(Int::class.java, IntegerArgumentParser())
-        bind(Integer.TYPE, IntegerArgumentParser())
+        bind(Int::class.javaObjectType, IntegerArgumentParser())
         bind(Boolean::class.java, BooleanArgumentParser())
-        bind(java.lang.Boolean.TYPE, BooleanArgumentParser())
+        bind(Boolean::class.javaObjectType, BooleanArgumentParser())
         bind(Float::class.java, FloatArgumentParser())
-        bind(java.lang.Float.TYPE, FloatArgumentParser())
+        bind(Float::class.javaObjectType, FloatArgumentParser())
         bind(Double::class.java, StringArgumentParser())
-        bind(java.lang.Double.TYPE, StringArgumentParser())
+        bind(Double::class.javaObjectType, StringArgumentParser())
         bind(Long::class.java, LongArgumentParser())
-        bind(java.lang.Long.TYPE, LongArgumentParser())
+        bind(Long::class.javaObjectType, LongArgumentParser())
     }
 
     @Throws(CommandException::class)

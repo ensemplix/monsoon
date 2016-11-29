@@ -71,6 +71,7 @@ public class SimpleCommandDispatcherTest {
         assertTrue(call("test2 argument koala"));
         assertTrue(call("test2 argument2"));
         assertTrue(call("test2 enumm world"));
+        assertTrue(call("test2 longg 12"));
 
         assertTrue(command.hello && command.test);
         assertEquals(36, command.integer);
@@ -80,6 +81,7 @@ public class SimpleCommandDispatcherTest {
         assertEquals(Argument.Result.FAIL, command.argument2.getResult());
         assertNull(command.argument2.getValue());
         assertEquals(WORLD, command.enumm);
+        assertEquals(12, command.longg);
 
         assertArrayEquals(new String[] {"i", "love", "ensemplix", "<3"}, command.strings.toArray());
     }
