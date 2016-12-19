@@ -1,9 +1,7 @@
 package ru.ensemplix.command.dispatcher
 
 import ru.ensemplix.command.*
-import ru.ensemplix.command.argument.Argument
-import ru.ensemplix.command.argument.ArgumentParser
-import ru.ensemplix.command.argument.ArgumentParser.*
+import ru.ensemplix.command.argument.*
 import ru.ensemplix.command.exception.CommandAccessException
 import ru.ensemplix.command.exception.CommandException
 import ru.ensemplix.command.exception.CommandNotFoundException
