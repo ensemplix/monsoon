@@ -86,7 +86,7 @@ jacocoTestReport {
 }
 
 dependencies {
-    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.3'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.5'
 
     testCompile 'org.projectlombok:lombok:1.16.2'
     testCompile 'com.google.guava:guava:18.0'
