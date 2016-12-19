@@ -69,22 +69,22 @@ class SimpleCommandDispatcher : CommandDispatcher {
 
         for(i in 1..length - 1) {
             val parameterType = parameters[i].type
-            val parser: ArgumentParser<*>?
+            val parser: ArgumentParser<*>
 
             if(Iterable::class.java.isAssignableFrom(parameterType)) {
                 val type = parameters[i].parameterizedType as ParameterizedType
                 val argumentType = type.actualTypeArguments[0]
 
                 if(argumentType is ParameterizedType && Argument::class.java.isAssignableFrom(argumentType.rawType as Class<*>)) {
-                    parser = parsers[argumentType.actualTypeArguments[0]]
+                    parser = parsers[argumentType.actualTypeArguments[0]]!!
                 } else {
-                    parser = parsers[argumentType]
+                    parser = parsers[argumentType]!!
                 }
             } else if(Argument::class.java.isAssignableFrom(parameterType)) {
                 val type = parameters[i].parameterizedType as ParameterizedType
-                parser = parsers[type.actualTypeArguments[0]]
+                parser = parsers[type.actualTypeArguments[0]]!!
             } else {
-                parser = parsers[parameterType]
+                parser = parsers[parameterType]!!
             }
 
             if(Iterable::class.java.isAssignableFrom(parameterType)) {
@@ -94,7 +94,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
                 for(y in i - 1..args.size - 1) {
                     val type = parameters[i].parameterizedType as ParameterizedType
                     val argumentType = type.actualTypeArguments[0]
-                    val argument = parser!!.parseArgument(args[y])
+                    val argument = parser.parseArgument(args[y])
 
                     if(argumentType is ParameterizedType && Argument::class.java.isAssignableFrom(argumentType.rawType as Class<*>)) {
                         collection.add(argument)
@@ -113,12 +113,12 @@ class SimpleCommandDispatcher : CommandDispatcher {
                 // Подготавливаем аргументы команды.
                 val argument: Argument<*>
                 if(args.size + 1 > i) {
-                    argument = parser!!.parseArgument(args[i - 1])
+                    argument = parser.parseArgument(args[i - 1])
                     if(argument.text == null) {
                         argument.text = args[i - 1]
                     }
                 } else {
-                    argument = parser!!.parseArgument(null)
+                    argument = parser.parseArgument(null)
                 }
 
                 if(Argument::class.java.isAssignableFrom(parameterType)) {
