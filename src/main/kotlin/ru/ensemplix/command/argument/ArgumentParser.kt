@@ -1,5 +1,6 @@
 package ru.ensemplix.command.argument
 
+import ru.ensemplix.command.CommandContext
 import ru.ensemplix.command.argument.Argument.Result.FAIL
 import ru.ensemplix.command.argument.Argument.Result.SUCCESS
 
@@ -16,6 +17,6 @@ interface ArgumentParser<out T> {
      *
      * @return Аргумент, который получился после конвертации.
      */
-    fun parseArgument(value: String?): Argument<T>
+    fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<T>
 
 }

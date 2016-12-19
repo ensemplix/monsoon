@@ -23,6 +23,7 @@ package ru.ensemplix.command.argument
  * Если в ходе конвертации не нашелся игрок, то result будет {@code FAIL}.
  */
 class Argument<out T>(val result: Argument.Result, val value: T?) {
+    internal var consume: Int = 1
     var text: String? = null
 
     /**

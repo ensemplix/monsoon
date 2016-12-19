@@ -5,6 +5,7 @@ import ru.ensemplix.command.argument.*
 import ru.ensemplix.command.exception.CommandAccessException
 import ru.ensemplix.command.exception.CommandException
 import ru.ensemplix.command.exception.CommandNotFoundException
+import ru.ensemplix.command.util.Sentence
 import java.lang.reflect.ParameterizedType
 import java.util.*
 
@@ -46,6 +47,9 @@ class SimpleCommandDispatcher : CommandDispatcher {
         bind(Double::class.javaObjectType, StringArgumentParser())
         bind(Long::class.java, LongArgumentParser())
         bind(Long::class.javaObjectType, LongArgumentParser())
+
+        // Вспомогательные парсеры.
+        bind(Sentence::class.java, SentenceArgumentParser())
     }
 
     @Throws(CommandException::class)
@@ -63,6 +67,10 @@ class SimpleCommandDispatcher : CommandDispatcher {
         val length = parameters.size
         val arguments = ArrayList<Argument<*>>()
         val parsed = arrayOfNulls<Any>(length)
+
+        // Указатель на текущие положение в переданной строке.
+        var currentPosition = 0
+
         parsed[0] = sender
 
         for(i in 1..length - 1) {
@@ -89,10 +97,11 @@ class SimpleCommandDispatcher : CommandDispatcher {
                 // Подготоваливаем коллекцию.
                 val collection = ArrayList<Any?>()
 
-                for(y in i - 1..args.size - 1) {
+                for(y in currentPosition..args.size - 1) {
                     val type = parameters[i].parameterizedType as ParameterizedType
                     val argumentType = type.actualTypeArguments[0]
-                    val argument = parser.parseArgument(args[y])
+                    val argument = parser.parseArgument(context, y, args[y])
+                    currentPosition += argument.consume
 
                     if(argumentType is ParameterizedType && Argument::class.java.isAssignableFrom(argumentType.rawType as Class<*>)) {
                         collection.add(argument)
@@ -106,17 +115,23 @@ class SimpleCommandDispatcher : CommandDispatcher {
 
                     arguments.add(argument)
                 }
+
                 parsed[i] = collection
             } else {
                 // Подготавливаем аргументы команды.
                 val argument: Argument<*>
-                if(args.size + 1 > i) {
-                    argument = parser.parseArgument(args[i - 1])
+
+                if(args.size > currentPosition) {
+                    argument = parser.parseArgument(context, currentPosition, args[currentPosition])
+
                     if(argument.text == null) {
-                        argument.text = args[i - 1]
+                        argument.text = args[currentPosition]
                     }
+
+                    currentPosition += argument.consume
                 } else {
-                    argument = parser.parseArgument(null)
+                    argument = parser.parseArgument(context, currentPosition, null)
+                    currentPosition += argument.consume
                 }
 
                 if(Argument::class.java.isAssignableFrom(parameterType)) {
@@ -128,6 +143,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
                 arguments.add(argument)
             }
         }
+
         // Выполняем команду.
         try {
             // Если возвращает void, то считаем что результат выполнения команды всегда положительный.

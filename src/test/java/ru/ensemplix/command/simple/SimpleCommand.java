@@ -3,6 +3,7 @@ package ru.ensemplix.command.simple;
 import ru.ensemplix.command.Command;
 import ru.ensemplix.command.CommandSender;
 import ru.ensemplix.command.argument.Argument;
+import ru.ensemplix.command.util.Sentence;
 
 import java.util.Collection;
 
@@ -17,6 +18,7 @@ public class SimpleCommand {
     public Argument argument;
     public Argument argument2;
     public SimpleEnum enumm;
+    public Sentence sentence;
 
     @Command
     public boolean hello(SimpleSender sender) {
@@ -67,6 +69,11 @@ public class SimpleCommand {
     @Command
     public void longg(CommandSender sender, Argument<Long> argument) {
         longg = argument.getValue();
+    }
+
+    @Command
+    public void sentence(CommandSender sender, Sentence sentence) {
+        this.sentence = sentence;
     }
 
     public enum SimpleEnum {

@@ -1,10 +1,12 @@
 package ru.ensemplix.command.argument
 
+import ru.ensemplix.command.CommandContext
 import ru.ensemplix.command.argument.Argument.Result.FAIL
 import ru.ensemplix.command.argument.Argument.Result.SUCCESS
+import ru.ensemplix.command.util.Sentence
 
 class StringArgumentParser : ArgumentParser<String> {
-    override fun parseArgument(value: String?): Argument<String> {
+    override fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<String> {
         if (value == null || value.isEmpty()) {
             return Argument(FAIL, null)
         }
@@ -14,7 +16,7 @@ class StringArgumentParser : ArgumentParser<String> {
 }
 
 class IntegerArgumentParser : ArgumentParser<Int> {
-    override fun parseArgument(value: String?): Argument<Int> {
+    override fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<Int> {
         try {
             return Argument(SUCCESS, Integer.parseInt(value))
         } catch (e: NumberFormatException) {
@@ -24,7 +26,7 @@ class IntegerArgumentParser : ArgumentParser<Int> {
 }
 
 class LongArgumentParser : ArgumentParser<Long> {
-    override fun parseArgument(value: String?): Argument<Long> {
+    override fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<Long> {
         try {
             return Argument(SUCCESS, java.lang.Long.parseLong(value))
         } catch (e: NumberFormatException) {
@@ -34,7 +36,7 @@ class LongArgumentParser : ArgumentParser<Long> {
 }
 
 class BooleanArgumentParser : ArgumentParser<Boolean> {
-    override fun parseArgument(value: String?): Argument<Boolean> {
+    override fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<Boolean> {
         if (value == null || value.isEmpty()) {
             return Argument(FAIL, false)
         }
@@ -44,7 +46,7 @@ class BooleanArgumentParser : ArgumentParser<Boolean> {
 }
 
 class FloatArgumentParser : ArgumentParser<Float> {
-    override fun parseArgument(value: String?): Argument<Float> {
+    override fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<Float> {
         try {
             return Argument(SUCCESS, java.lang.Float.parseFloat(value))
         } catch (e: NumberFormatException) {
@@ -54,7 +56,7 @@ class FloatArgumentParser : ArgumentParser<Float> {
 }
 
 class DoubleArgumentParser : ArgumentParser<Double> {
-    override fun parseArgument(value: String?): Argument<Double> {
+    override fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<Double> {
         try {
             return Argument(SUCCESS, java.lang.Double.parseDouble(value))
         } catch (e: NumberFormatException) {
@@ -64,15 +66,15 @@ class DoubleArgumentParser : ArgumentParser<Double> {
 }
 
 class EnumArgumentParser(val enumType: Class<out Enum<*>>) : ArgumentParser<Enum<*>> {
-    override fun parseArgument(value: String?): Argument<Enum<*>> {
-        val argument = integerParser.parseArgument(value)
-        val enumConstants = enumType.enumConstants;
+    override fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<Enum<*>> {
+        val argument = integerParser.parseArgument(context, index, value)
+        val enumConstants = enumType.enumConstants
 
         if(argument.result == SUCCESS) {
-            val index = argument.value as Int
+            val enumIndex = argument.value as Int
 
-            if(index <= enumConstants.size) {
-                return Argument(SUCCESS, enumConstants[index])
+            if(enumIndex <= enumConstants.size) {
+                return Argument(SUCCESS, enumConstants[enumIndex])
             }
         }
 
@@ -88,4 +90,20 @@ class EnumArgumentParser(val enumType: Class<out Enum<*>>) : ArgumentParser<Enum
     companion object {
         private val integerParser = IntegerArgumentParser()
     }
+}
+
+class SentenceArgumentParser : ArgumentParser<Sentence> {
+    override fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<Sentence> {
+        val maxIndex = context.args.size
+
+        if(maxIndex <= index) {
+            return Argument(FAIL, null)
+        }
+
+        val slice = context.args.copyOfRange(index, maxIndex)
+        val text = slice.joinToString(" ")
+
+        return Argument(SUCCESS, Sentence(text))
+    }
+
 }
