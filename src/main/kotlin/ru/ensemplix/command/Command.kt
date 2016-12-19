@@ -32,6 +32,11 @@ annotation class Command(
         /**
          * Позволяет указывать дополнительные названия для действия.
          */
-        val aliases: Array<String> = arrayOf()
+        val aliases: Array<String> = arrayOf(),
+
+        /**
+         * Позволяет регистрировать действие как отдельную команду.
+         */
+        val asCommand: String = ""
 
 )

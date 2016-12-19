@@ -311,17 +311,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
     override fun register(obj: Any, vararg names: String?) {
         // Проверяем, что команды с таким именем еще нет.
         for(name in names) {
-            if(name == null || name.isEmpty()) {
-                throw IllegalArgumentException("Please provide valid command name")
-            }
-
-            if(name.contains(' ')) {
-                throw IllegalArgumentException("Please provide command name with no whitespace")
-            }
-
-            if(commands.containsKey(name.toLowerCase())) {
-                throw IllegalArgumentException("Command with name " + name.toLowerCase() + " already exists")
-            }
+            validateCommandName(name)
         }
 
         val commandActions = HashMap<String, ArrayList<CommandAction>>()
@@ -374,6 +364,13 @@ class SimpleCommandDispatcher : CommandDispatcher {
                 mains.add(action)
             }
 
+            val asCommand = annotation.asCommand.toLowerCase()
+
+            if(asCommand.isNotEmpty()) {
+                validateCommandName(asCommand)
+                commands[asCommand] = CommandHandler(asCommand, obj, Collections.singletonList(action), Collections.emptyMap())
+            }
+
             for(alias in annotation.aliases) {
                 registerAction(alias, action, commandActions)
             }
@@ -387,6 +384,20 @@ class SimpleCommandDispatcher : CommandDispatcher {
 
         for(name in names) {
             commands[name!!.toLowerCase()] = CommandHandler(names[0]!!.toLowerCase(), obj, mains, commandActions)
+        }
+    }
+
+    private fun validateCommandName(name: String?) {
+        if(name == null || name.isEmpty()) {
+            throw IllegalArgumentException("Please provide valid command name")
+        }
+
+        if(name.contains(' ')) {
+            throw IllegalArgumentException("Please provide command name with no whitespace")
+        }
+
+        if(commands.containsKey(name.toLowerCase())) {
+            throw IllegalArgumentException("Command with name " + name.toLowerCase() + " already exists")
         }
     }
 

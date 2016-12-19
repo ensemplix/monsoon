@@ -103,6 +103,15 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
+    public void testActionCallAsCommand() throws CommandException {
+        ActionAsCommand command = new ActionAsCommand();
+        dispatcher.register(command, "origin");
+        dispatcher.call(sender, "asCommand redirect");
+
+        assertTrue(command.called);
+    }
+
+    @Test
     public void testCommandCallCaseSensivite() throws CommandException {
         dispatcher.register(new SimpleCommand(), "test3");
         dispatcher.call(sender, "teSt3");
@@ -597,6 +606,15 @@ public class SimpleCommandDispatcherTest {
         public boolean called;
 
         @Command(aliases = "simple")
+        public void redirect(SimpleSender sender) {
+            this.called = true;
+        }
+    }
+
+    public class ActionAsCommand {
+        public boolean called;
+
+        @Command(asCommand = "asCommand")
         public void redirect(SimpleSender sender) {
             this.called = true;
         }
