@@ -374,13 +374,11 @@ class SimpleCommandDispatcher : CommandDispatcher {
                 mains.add(action)
             }
 
-            val methodName = method.name.toLowerCase()
-
-            if(!commandActions.containsKey(methodName)) {
-                commandActions.put(methodName, ArrayList<CommandAction>())
+            for(alias in annotation.aliases) {
+                registerAction(alias, action, commandActions)
             }
 
-            commandActions.get(methodName)!!.add(action)
+            registerAction(method.name.toLowerCase(), action, commandActions)
         }
 
         if(commandActions.isEmpty()) {
@@ -390,6 +388,14 @@ class SimpleCommandDispatcher : CommandDispatcher {
         for(name in names) {
             commands[name!!.toLowerCase()] = CommandHandler(names[0]!!.toLowerCase(), obj, mains, commandActions)
         }
+    }
+
+    private fun registerAction(name: String, action: CommandAction, actions: HashMap<String, ArrayList<CommandAction>>) {
+        if(!actions.containsKey(name)) {
+            actions.put(name, ArrayList<CommandAction>())
+        }
+
+        actions.get(name)!!.add(action)
     }
 
     override fun unregister(cls: Class<*>) {

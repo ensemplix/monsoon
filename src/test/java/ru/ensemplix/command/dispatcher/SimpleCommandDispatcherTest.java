@@ -83,7 +83,23 @@ public class SimpleCommandDispatcherTest {
         assertEquals(WORLD, command.enumm);
         assertEquals(12, command.longg);
 
-        assertArrayEquals(new String[] {"i", "love", "ensemplix", "<3"}, command.strings.toArray());
+        assertArrayEquals(new String[]{"i", "love", "ensemplix", "<3"}, command.strings.toArray());
+    }
+
+    @Test
+    public void testActionCallAlias() throws CommandException {
+        ActionAlias command = new ActionAlias();
+        dispatcher.register(command, "alias");
+        dispatcher.call(sender, "alias simple");
+
+        assertTrue(command.called);
+    }
+
+    @Test(expected = CommandNotFoundException.class)
+    public void testActionCallWrongAlias() throws CommandException {
+        ActionAlias command = new ActionAlias();
+        dispatcher.register(command, "alias2");
+        dispatcher.call(sender, "alias2 wrong");
     }
 
     @Test
@@ -574,6 +590,15 @@ public class SimpleCommandDispatcherTest {
         @Command(main = true)
         public void delete(SimpleSender sender, String something, Argument<Region> argument) {
             fail();
+        }
+    }
+
+    public class ActionAlias {
+        public boolean called;
+
+        @Command(aliases = "simple")
+        public void redirect(SimpleSender sender) {
+            this.called = true;
         }
     }
 

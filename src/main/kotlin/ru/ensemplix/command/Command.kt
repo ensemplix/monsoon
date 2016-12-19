@@ -27,5 +27,11 @@ annotation class Command(
          *
          * @return {@code true}, если требуется проверка прав.
          */
-        val permission: Boolean = false
+        val permission: Boolean = false,
+
+        /**
+         * Позволяет указывать дополнительные названия для действия.
+         */
+        val aliases: Array<String> = arrayOf()
+
 )
