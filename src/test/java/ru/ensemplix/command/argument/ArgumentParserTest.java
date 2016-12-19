@@ -94,6 +94,7 @@ public class ArgumentParserTest {
         Argument<Enum<?>> result = parser.parseArgument("success");
         Argument<Enum<?>> result2 = parser.parseArgument("0");
         Argument<Enum<?>> result3 = parser.parseArgument("string");
+        Argument<Enum<?>> result4 = parser.parseArgument("3");
 
         assertEquals(SUCCESS, result.getResult());
         assertEquals(SUCCESS, result.getValue());
@@ -101,6 +102,8 @@ public class ArgumentParserTest {
         assertEquals(SUCCESS, result2.getResult());
         assertEquals(FAIL, result3.getResult());
         assertEquals(FAIL, result3.getResult());
+        assertEquals(FAIL, result4.getResult());
+        assertEquals(FAIL, result4.getResult());
     }
 
 }

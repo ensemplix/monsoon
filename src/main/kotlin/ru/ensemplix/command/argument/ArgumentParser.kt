@@ -81,12 +81,17 @@ interface ArgumentParser<out T> {
     class EnumArgumentParser(val enumType: Class<out Enum<*>>) : ArgumentParser<Enum<*>> {
         override fun parseArgument(value: String?): Argument<Enum<*>> {
             val argument = integerParser.parseArgument(value)
+            val enumConstants = enumType.enumConstants;
 
-            for(e in enumType.enumConstants) {
-                if(argument.result == SUCCESS && argument.value!!.equals(e.ordinal)) {
-                    return Argument(SUCCESS, e)
+            if(argument.result == SUCCESS) {
+                val index = argument.value as Int
+
+                if(index <= enumConstants.size) {
+                    return Argument(SUCCESS, enumConstants[index])
                 }
+            }
 
+            for(e in enumConstants) {
                 if(e.name.equals(value, true)) {
                     return Argument(SUCCESS, e)
                 }
