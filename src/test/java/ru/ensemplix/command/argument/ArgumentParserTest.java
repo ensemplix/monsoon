@@ -122,11 +122,13 @@ public class ArgumentParserTest {
 
         Argument<Sentence> result = parser.parseArgument(context, 0, "i");
         Argument<Sentence> result2 = parser.parseArgument(context, 1, "am");
+        Argument<Sentence> result3 = parser.parseArgument(context, 5, "");
 
         assertEquals(SUCCESS, result.getResult());
         assertEquals(text, result.getValue().getText());
         assertEquals(SUCCESS, result2.getResult());
         assertEquals("am your sentence", result2.getValue().getText());
+        assertEquals(FAIL, result3.getResult());
     }
 
 }
