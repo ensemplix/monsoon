@@ -1,6 +1,6 @@
 package ru.ensemplix.command
 
-import kotlin.annotation.AnnotationTarget.*
+import kotlin.annotation.AnnotationTarget.FUNCTION
 
 /**
  * С помощью этой аннотации мы обозначаем команду.
@@ -9,13 +9,13 @@ import kotlin.annotation.AnnotationTarget.*
 annotation class Command(
 
         /**
-        * Обозначает, что выбранная команда является главной.
-        *
-        * В случае если не будет найдено альтернатив, будет выполнена
-        * указанная команда.
-        *
-        * @return {@code true}, если команда является главной.
-        */
+         * Обозначает, что выбранная команда является главной.
+         *
+         * В случае если не будет найдено альтернатив, будет выполнена
+         * указанная команда.
+         *
+         * @return {@code true}, если команда является главной.
+         */
         val main: Boolean = false,
 
         /**
@@ -27,6 +27,5 @@ annotation class Command(
          *
          * @return {@code true}, если требуется проверка прав.
          */
-         val permission: Boolean = false
-
+        val permission: Boolean = false
 )
