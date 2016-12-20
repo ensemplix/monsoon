@@ -103,7 +103,7 @@ class SentenceArgumentParser : ArgumentParser<Sentence> {
         val slice = context.args.copyOfRange(index, maxIndex)
         val text = slice.joinToString(" ")
 
-        return Argument(SUCCESS, Sentence(text))
+        return Argument(SUCCESS, Sentence(text), maxIndex - index)
     }
 
 }

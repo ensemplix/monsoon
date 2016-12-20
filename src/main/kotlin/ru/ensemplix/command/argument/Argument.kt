@@ -22,8 +22,7 @@ package ru.ensemplix.command.argument
  * Теперь, если не был передан аргумент с ником игрока, то аргумент будет равен {@code null}.
  * Если в ходе конвертации не нашелся игрок, то result будет {@code FAIL}.
  */
-class Argument<out T>(val result: Argument.Result, val value: T?) {
-    internal var consume: Int = 1
+class Argument<out T> @JvmOverloads constructor(val result: Argument.Result, val value: T?, val consume: Int = 1) {
     var text: String? = null
 
     /**

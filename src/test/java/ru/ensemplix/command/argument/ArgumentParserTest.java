@@ -126,8 +126,10 @@ public class ArgumentParserTest {
 
         assertEquals(SUCCESS, result.getResult());
         assertEquals(text, result.getValue().getText());
+        assertEquals(4, result.getConsume());
         assertEquals(SUCCESS, result2.getResult());
         assertEquals("am your sentence", result2.getValue().getText());
+        assertEquals(3, result2.getConsume());
         assertEquals(FAIL, result3.getResult());
     }
 
