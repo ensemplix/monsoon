@@ -1,6 +1,5 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'maven-publish'
-apply plugin: 'checkstyle'
 apply plugin: 'jacoco'
 apply plugin: 'kotlin'
 apply plugin: 'java'
@@ -13,11 +12,6 @@ version = '2.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-
-checkstyle {
-    toolVersion = '6.3'
-    configFile = file('checkstyle.xml')
-}
 
 javadoc {
     options.encoding = 'UTF-8'
