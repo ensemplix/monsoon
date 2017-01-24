@@ -1,8 +1,6 @@
 package ru.ensemplix.command.argument
 
 import ru.ensemplix.command.CommandContext
-import ru.ensemplix.command.argument.Argument.Result.FAIL
-import ru.ensemplix.command.argument.Argument.Result.SUCCESS
 
 /**
  * Реализация данного интерфейса позволяет конвертировать
