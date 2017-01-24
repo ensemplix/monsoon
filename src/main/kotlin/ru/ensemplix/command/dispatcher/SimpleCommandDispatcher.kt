@@ -55,11 +55,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
     @Throws(CommandException::class)
     override fun call(sender: CommandSender, cmd: String): CommandResult {
         val context = validate(sender, cmd)
-        val action = context.action
-
-        if(action == null) {
-            throw CommandNotFoundException()
-        }
+        val action = context.action ?: throw CommandNotFoundException()
 
         val method = action.method
         val args = context.args
@@ -164,7 +160,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
             val matches = ArrayList<String>()
             val names = commands.keys
 
-            if(cmd.length > 0) {
+            if(cmd.isNotEmpty()) {
                 names.forEach {
                     if(it.startsWith(cmd)) {
                         matches.add("/$it")
@@ -182,7 +178,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
         val action = context.action
         val args = context.args
 
-        if(args.size == 0 && cmd.last() != ' ') {
+        if(args.isEmpty() && cmd.last() != ' ') {
             return emptyList<String>()
         }
 
@@ -207,7 +203,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
         var arg = ""
         var i = 1
 
-        if(args.size > 0) {
+        if(args.isNotEmpty()) {
             i = args.size
             arg = args[i - 1]
         }
@@ -427,7 +423,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
         val iterator = commands.values.iterator()
 
         while(iterator.hasNext()) {
-            if(iterator.next().obj.javaClass.equals(cls)) {
+            if(iterator.next().obj.javaClass == cls) {
                 iterator.remove()
             }
         }
