@@ -7,4 +7,5 @@ class CommandContext(val commandName: String,
                      val actionName: String?,
                      val action: CommandAction?,
                      val args: Array<String>,
-                     val handler: CommandHandler)
+                     val handler: CommandHandler,
+                     val permission: String?)

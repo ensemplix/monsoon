@@ -1,7 +1,0 @@
-package ru.ensemplix.command.exception
-
-/**
- * Исключение выбрасывается если игрок не имеет необходимый
- * уровень доступа для вызова команды.
- */
-class CommandAccessException : CommandException()

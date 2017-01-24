@@ -15,7 +15,7 @@ import static ru.ensemplix.command.argument.Argument.Result.SUCCESS;
 public class ArgumentParserTest {
 
     private final CommandHandler HANDLER_STUB = new CommandHandler("stub", this, emptyList(), emptyMap());
-    private final CommandContext CONTEXT_STUB = new CommandContext("stub", null, null, new String[0], HANDLER_STUB);
+    private final CommandContext CONTEXT_STUB = new CommandContext("stub", null, null, new String[0], HANDLER_STUB, null);
 
     @Test
     public void testStringParser() {
@@ -114,11 +114,11 @@ public class ArgumentParserTest {
     }
 
     @Test
-    public void tesetSentenceParser() {
+    public void testSentenceParser() {
         String text = "I am your sentence";
 
         SentenceArgumentParser parser = new SentenceArgumentParser();
-        CommandContext context = new CommandContext("stub", null, null, text.split(" "), HANDLER_STUB);
+        CommandContext context = new CommandContext("stub", null, null, text.split(" "), HANDLER_STUB, null);
 
         Argument<Sentence> result = parser.parseArgument(context, 0, "i");
         Argument<Sentence> result2 = parser.parseArgument(context, 1, "am");

@@ -1,12 +1,22 @@
 package ru.ensemplix.command.dispatcher
 
 import ru.ensemplix.command.CommandCompleter
+import ru.ensemplix.command.CommandContext
 import ru.ensemplix.command.CommandResult
 import ru.ensemplix.command.CommandSender
 import ru.ensemplix.command.argument.ArgumentParser
-import ru.ensemplix.command.exception.CommandException
 
 interface CommandDispatcher {
+
+    /**
+     * Проверяет строку и конвертирует результат проверки в объект
+     * {@link CommandContext} CommandContext.
+     *
+     * @param sender Отправитель команды.
+     * @param cmd Строка, которую отослал отправитель.
+     * @return Возвращает результат проверки.
+     */
+    fun validate(sender: CommandSender, cmd: String?): CommandContext?
 
     /**
      * Выполнение команды, отправленной пользователем, на основе отправленного текста.
@@ -18,13 +28,10 @@ interface CommandDispatcher {
      * исключение {@link CommandAccessException} CommandAccessException.
      *
      * @param sender Отправитель команды.
-     * @param cmd Строка, которую отослал отправитель.
+     * @param context Результат проверки переданной строки.
      * @return {@code true}, если команда была выполнена без ошибок.
-     * @throws CommandException Выбрасывает исключение, если команды не
-     * существует или нет разрешения на ее выполнение.
      */
-    @Throws(CommandException::class)
-    fun call(sender: CommandSender, cmd: String): CommandResult
+    fun call(sender: CommandSender, context: CommandContext): CommandResult
 
     /**
      * Автоматическое дополнение команды на основе ввода пользователя.

@@ -10,9 +10,6 @@ import ru.ensemplix.command.CommandResult;
 import ru.ensemplix.command.CommandSender;
 import ru.ensemplix.command.argument.Argument;
 import ru.ensemplix.command.argument.EnumArgumentParser;
-import ru.ensemplix.command.exception.CommandAccessException;
-import ru.ensemplix.command.exception.CommandException;
-import ru.ensemplix.command.exception.CommandNotFoundException;
 import ru.ensemplix.command.region.Region;
 import ru.ensemplix.command.region.RegionArgumentParser;
 import ru.ensemplix.command.region.RegionCommand;
@@ -60,7 +57,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testDispatcher() throws CommandException {
+    public void testDispatcher() {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
 
@@ -92,61 +89,62 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testActionCallAlias() throws CommandException {
+    public void testActionCallAlias() {
         ActionAlias command = new ActionAlias();
         dispatcher.register(command, "alias");
-        dispatcher.call(sender, "alias simple");
+        call("alias simple");
 
         assertTrue(command.called);
     }
 
-    @Test(expected = CommandNotFoundException.class)
-    public void testActionCallWrongAlias() throws CommandException {
+    @Test
+    public void testActionCallWrongAlias() {
         ActionAlias command = new ActionAlias();
         dispatcher.register(command, "alias2");
-        dispatcher.call(sender, "alias2 wrong");
+
+        validate("alias2 wrong");
     }
 
     @Test
-    public void testActionCallAsCommand() throws CommandException {
+    public void testActionCallAsCommand() {
         ActionAsCommand command = new ActionAsCommand();
         dispatcher.register(command, "origin");
-        dispatcher.call(sender, "asCommand redirect");
+        call("asCommand redirect");
 
         assertTrue(command.called);
     }
 
     @Test
-    public void testCommandCallCaseSensivite() throws CommandException {
+    public void testCommandCallCaseSensitive() {
         dispatcher.register(new SimpleCommand(), "test3");
-        dispatcher.call(sender, "teSt3");
+        call( "teSt3");
     }
 
     @Test
-    public void testCommandRegisterCaseSensivite() throws CommandException {
+    public void testCommandRegisterCaseSensitive() {
         dispatcher.register(new SimpleCommand(), "teSt4");
-        dispatcher.call(sender, "test4");
+        call("test4");
     }
 
     @Test
-    public void testActionCallCaseSensivite() throws CommandException {
+    public void testActionCallCaseSensivite() {
         dispatcher.register(new CaseSensivity(), "case");
-        dispatcher.call(sender, "case listall");
+        call("case listall");
     }
 
     @Test
-    public void testActionRegisterCaseSensivite() throws CommandException {
+    public void testActionRegisterCaseSensivite() {
         dispatcher.register(new CaseSensivity(), "case2");
-        dispatcher.call(sender, "case2 liStaLl");
+        call("case2 liStaLl");
     }
 
     @Test
-    public void testCommandResult() throws CommandException {
+    public void testCommandResult() {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
 
-        CommandResult result = dispatcher.call(sender, "test2 integer 36");
-        CommandContext context = result.getContext();
+        CommandContext context = dispatcher.validate(sender, "test2 integer 36");
+        CommandResult result = dispatcher.call(sender, context);
         List<Argument<?>> arguments = result.getArguments();
 
         assertTrue(result.isSuccess());
@@ -159,7 +157,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testTypeParser() throws CommandException {
+    public void testTypeParser() {
         RegionCommand region = new RegionCommand();
 
         dispatcher.bind(Region.class, new RegionArgumentParser());
@@ -170,7 +168,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteObjectPartial() throws CommandException {
+    public void testCompleteObjectPartial() {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "object");
 
@@ -182,7 +180,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteObjectWithArgument() throws CommandException {
+    public void testCompleteObjectWithArgument() {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "object2");
 
@@ -195,7 +193,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testTypeParserIterable() throws CommandException {
+    public void testTypeParserIterable() {
         RegionCommand region = new RegionCommand();
 
         dispatcher.bind(Region.class, new RegionArgumentParser());
@@ -212,7 +210,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteIterable() throws CommandException {
+    public void testCompleteIterable() {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "iterable2");
 
@@ -225,7 +223,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteIterablePartial() throws CommandException {
+    public void testCompleteIterablePartial() {
         RegionCommand region = new RegionCommand();
         dispatcher.register(region, "iterable3");
 
@@ -237,7 +235,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteArgumentPartial() throws CommandException {
+    public void testCompleteArgumentPartial() {
         dispatcher.register(new Actions(), "actions2");
 
         String[] actions = dispatcher.complete(sender, "actions2 ad").toArray(new String[2]);
@@ -247,14 +245,14 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteAction() throws CommandException {
+    public void testCompleteAction() {
         dispatcher.register(new RegionCommand(), "actions3");
 
         assertTrue(dispatcher.complete(sender, "actions3 remove").isEmpty());
     }
 
     @Test
-    public void testCompleteActionPartial() throws CommandException {
+    public void testCompleteActionPartial() {
         dispatcher.register(new RegionCommand(), "actions4");
 
         String[] actions = dispatcher.complete(sender, "actions4 rem").toArray(new String[1]);
@@ -263,14 +261,14 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCompleteCommand() throws CommandException {
+    public void testCompleteCommand() {
         dispatcher.register(new Actions(), "actions5");
 
         assertTrue(dispatcher.complete(sender, "actions5").isEmpty());
     }
 
     @Test
-    public void testCompleteNotRequired() throws CommandException {
+    public void testCompleteNotRequired() {
         dispatcher.register(new RegionCommand(), "actions6");
 
         assertTrue(dispatcher.complete(sender, "actions6 remove home ").isEmpty());
@@ -380,47 +378,47 @@ public class SimpleCommandDispatcherTest {
         dispatcher.register(new IterableLastParameter());
     }
 
-    @Test(expected = CommandNotFoundException.class)
-    public void testCallCmdEmpty() throws CommandException {
-        call("");
-    }
-
-    @Test(expected = CommandNotFoundException.class)
-    public void testCallCmdEmptyPrefixed() throws CommandException {
-        call("");
-    }
-
-    @Test(expected = CommandNotFoundException.class)
-    public void testCallCommandNotFound() throws CommandException {
-        call("not existing command");
-    }
-
-    @Test(expected = CommandNotFoundException.class)
-    public void testCallCommandNoMain() throws CommandException {
-        dispatcher.register(new NoMain(), "no_main");
-        call("no_main");
-    }
-
-    @Test(expected = CommandAccessException.class)
-    public void testCallCommandNoAccess() throws CommandException {
-        dispatcher.register(new Access(), "access");
-        call("access");
-    }
-
-    @Test(expected = CommandAccessException.class)
-    public void testCallCommandNoAccessAllias() throws CommandException {
-        dispatcher.register(new Access(), "access2", "acc2");
-        call("acc2");
-    }
-
-    @Test(expected = CommandAccessException.class)
-    public void testCallCommandNoAccessAlliasAction() throws CommandException {
-        dispatcher.register(new Access2(), "access3", "acc3");
-        call("acc3 test");
+    @Test
+    public void testCallCmdEmpty() {
+        validate("");
     }
 
     @Test
-    public void testCallMain() throws CommandException {
+    public void testCallCmdEmptyPrefixed() {
+        validate("");
+    }
+
+    @Test
+    public void testCallCommandNotFound() {
+        validate("not existing command");
+    }
+
+    @Test
+    public void testCallCommandNoMain() {
+        dispatcher.register(new NoMain(), "no_main");
+        validate("no_main");
+    }
+
+    @Test
+    public void testCallCommandNoAccess() {
+        dispatcher.register(new Access(), "access");
+        validate("access");
+    }
+
+    @Test
+    public void testCallCommandNoAccessAlias() {
+        dispatcher.register(new Access(), "access2", "acc2");
+        validate("acc2");
+    }
+
+    @Test
+    public void testCallCommandNoAccessAliasAction() {
+        dispatcher.register(new Access2(), "access3", "acc3");
+        validate("acc3 test");
+    }
+
+    @Test
+    public void testCallMain() {
         Main main = new Main();
 
         dispatcher.register(main, "main");
@@ -430,19 +428,19 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testCallPropagateException() throws CommandException {
+    public void testCallPropagateException() {
         dispatcher.register(new PropagateException(), "exception");
         call("exception");
     }
 
     @Test
-    public void testCallNotMain() throws CommandException {
+    public void testCallNotMain() {
         dispatcher.register(new NotMain(), "notmain");
         call("notmain delete");
     }
 
     @Test
-    public void testCallActionRedirect() throws CommandException {
+    public void testCallActionRedirect() {
         SameActionRedirect command = new SameActionRedirect();
 
         dispatcher.register(command, "redirect");
@@ -452,7 +450,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCallMainActionRedirect() throws CommandException {
+    public void testCallMainActionRedirect() {
         SameMainActionRedirect command = new SameMainActionRedirect();
 
         dispatcher.register(command, "redirect2");
@@ -461,8 +459,18 @@ public class SimpleCommandDispatcherTest {
         assertEquals("del", command.something);
     }
 
-    public boolean call(String command) throws CommandException {
-        return dispatcher.call(sender, command).isSuccess();
+    private boolean validate(String cmd) {
+        return dispatcher.validate(sender, cmd) != null;
+    }
+
+    private boolean call(String cmd) {
+        CommandContext context = dispatcher.validate(sender, cmd);
+
+        if(context != null) {
+            return dispatcher.call(sender, context).isSuccess();
+        }
+
+        return false;
     }
 
     public class InvalidReturn {
@@ -508,7 +516,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     public class Main {
-        public boolean main;
+        private boolean main;
 
         @Command(main = true)
         public void expectedCall(CommandSender sender) {
@@ -579,7 +587,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     public class SameActionRedirect {
-        public String something;
+        private String something;
 
         @Command
         public void delete(SimpleSender sender, String something) {
@@ -594,7 +602,7 @@ public class SimpleCommandDispatcherTest {
 
 
     public class SameMainActionRedirect {
-        public String something;
+        private String something;
 
         @Command(main = true)
         public void delete(SimpleSender sender, String something) {
@@ -608,7 +616,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     public class ActionAlias {
-        public boolean called;
+        private boolean called;
 
         @Command(aliases = "simple")
         public void redirect(SimpleSender sender) {
@@ -617,7 +625,7 @@ public class SimpleCommandDispatcherTest {
     }
 
     public class ActionAsCommand {
-        public boolean called;
+        private boolean called;
 
         @Command(asCommand = "asCommand")
         public void redirect(SimpleSender sender) {
