@@ -117,7 +117,7 @@ public class SimpleCommandDispatcherTest {
     @Test
     public void testCommandCallCaseSensitive() {
         dispatcher.register(new SimpleCommand(), "test3");
-        call( "teSt3");
+        call("teSt3");
     }
 
     @Test
