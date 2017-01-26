@@ -13,13 +13,4 @@ interface CommandSender {
      */
     fun sendMessage(message: String, vararg args: Any)
 
-    /**
-     * Может ли пользователь выполнять указанную команду.
-     *
-     * @param command Команду, которую пытается выполнить пользователь.
-     * @param action Действие, которе пытается выполнить пользователь.
-     * @return {@code true}, если может выполнять команду.
-     */
-    fun canUseCommand(command: String, action: String?): Boolean
-
 }

@@ -400,24 +400,6 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testCallCommandNoAccess() {
-        dispatcher.register(new Access(), "access");
-        validate("access");
-    }
-
-    @Test
-    public void testCallCommandNoAccessAlias() {
-        dispatcher.register(new Access(), "access2", "acc2");
-        validate("acc2");
-    }
-
-    @Test
-    public void testCallCommandNoAccessAliasAction() {
-        dispatcher.register(new Access2(), "access3", "acc3");
-        validate("acc3 test");
-    }
-
-    @Test
     public void testCallMain() {
         Main main = new Main();
 
