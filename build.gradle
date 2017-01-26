@@ -24,7 +24,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.3'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.6'
     }
 }
 
@@ -80,7 +80,7 @@ jacocoTestReport {
 }
 
 dependencies {
-    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.5'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.6'
 
     testCompile 'org.projectlombok:lombok:1.16.2'
     testCompile 'com.google.guava:guava:18.0'
