@@ -10,9 +10,12 @@ import static ru.ensemplix.command.argument.Argument.Result.SUCCESS;
 
 public class RegionArgumentParser implements ArgumentParser<Region> {
 
-    @NotNull
     @Override
     public Argument<Region> parseArgument(@NotNull CommandContext context, int index, @Nullable String value) {
+        if(value == null || value.isEmpty()) {
+            return null;
+        }
+
         return new Argument<>(SUCCESS, new Region(value));
     }
 

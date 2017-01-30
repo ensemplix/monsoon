@@ -127,13 +127,13 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
-    public void testActionCallCaseSensivite() {
+    public void testActionCallCaseSensitive() {
         dispatcher.register(new CaseSensivity(), "case");
         call("case listall");
     }
 
     @Test
-    public void testActionRegisterCaseSensivite() {
+    public void testActionRegisterCaseSensitive() {
         dispatcher.register(new CaseSensivity(), "case2");
         call("case2 liStaLl");
     }

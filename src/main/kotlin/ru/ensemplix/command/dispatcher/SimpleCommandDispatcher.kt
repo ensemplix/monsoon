@@ -113,7 +113,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
         val args = context.args
         val parameters = method.parameters
         val length = parameters.size
-        val arguments = ArrayList<Argument<*>>()
+        val arguments = ArrayList<Argument<*>?>()
         val parsed = arrayOfNulls<Any>(length)
 
         // Указатель на текущие положение в переданной строке.
@@ -148,7 +148,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
                 for(y in currentPosition..args.size - 1) {
                     val type = parameters[i].parameterizedType as ParameterizedType
                     val argumentType = type.actualTypeArguments[0]
-                    val argument = parser.parseArgument(context, y, args[y])
+                    val argument = parser.parseArgument(context, y, args[y])!!
                     currentPosition += argument.consume
 
                     if(argumentType is ParameterizedType && Argument::class.java.isAssignableFrom(argumentType.rawType as Class<*>)) {
@@ -167,10 +167,10 @@ class SimpleCommandDispatcher : CommandDispatcher {
                 parsed[i] = collection
             } else {
                 // Подготавливаем аргументы команды.
-                val argument: Argument<*>
+                val argument: Argument<*>?
 
                 if(args.size > currentPosition) {
-                    argument = parser.parseArgument(context, currentPosition, args[currentPosition])
+                    argument = parser.parseArgument(context, currentPosition, args[currentPosition])!!
 
                     if(argument.text == null) {
                         argument.text = args[currentPosition]
@@ -179,10 +179,13 @@ class SimpleCommandDispatcher : CommandDispatcher {
                     currentPosition += argument.consume
                 } else {
                     argument = parser.parseArgument(context, currentPosition, null)
-                    currentPosition += argument.consume
+
+                    if(argument != null) {
+                        currentPosition += argument.consume
+                    }
                 }
 
-                if(Argument::class.java.isAssignableFrom(parameterType)) {
+                if(argument == null || Argument::class.java.isAssignableFrom(parameterType)) {
                     parsed[i] = argument
                 } else {
                     parsed[i] = argument.value

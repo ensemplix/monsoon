@@ -15,6 +15,6 @@ interface ArgumentParser<out T> {
      *
      * @return Аргумент, который получился после конвертации.
      */
-    fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<T>
+    fun parseArgument(context: CommandContext, index: Int, value: String?): Argument<T>?
 
 }
