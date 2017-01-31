@@ -77,9 +77,16 @@ class SimpleCommandDispatcher : CommandDispatcher {
 
         if(action != null) {
             val method = action.method
-            val actionName= method.name.toLowerCase()
-            val permissionAction = if(main == null || main.method != method) method.name.toLowerCase() else null
-            val permission = if(action.annotation.permission) handler.name + "." + permissionAction else null
+            val actionName = method.name.toLowerCase()
+            var permission: String? = null
+
+            if(action.annotation.permission) {
+                if(main == null || main.method != method) {
+                    permission = handler.name + "." + method.name.toLowerCase()
+                } else {
+                    permission = handler.name
+                }
+            }
 
             return CommandContext(handler.name, actionName, action, args, handler, permission)
         }
