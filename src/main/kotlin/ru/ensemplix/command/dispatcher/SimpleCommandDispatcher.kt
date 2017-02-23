@@ -54,8 +54,8 @@ class SimpleCommandDispatcher : CommandDispatcher {
             return null
         }
 
-        var args = cmd.toLowerCase().split((" ").toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
-        val handler = commands[args[0]] ?: return null
+        var args = cmd.split((" ").toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
+        val handler = commands[args[0].toLowerCase()] ?: return null
 
         val commandActions = handler.actions
         var action: CommandAction? = null

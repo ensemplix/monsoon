@@ -139,6 +139,16 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
+    public void testCallSensitivyArgument() {
+        CaseSensivityArgument sensivityArgument = new CaseSensivityArgument();
+
+        dispatcher.register(sensivityArgument, "case3");
+        call("case3 Text");
+
+        assertEquals("Text", sensivityArgument.text);
+    }
+
+    @Test
     public void testCommandResult() {
         SimpleCommand command = new SimpleCommand();
         dispatcher.register(command, "test", "test2");
@@ -164,7 +174,7 @@ public class SimpleCommandDispatcherTest {
         dispatcher.register(region, "parser");
 
         assertTrue(call("parser Project:Id"));
-        assertEquals("project:id", region.name);
+        assertEquals("Project:Id", region.name);
     }
 
     @Test
@@ -556,6 +566,15 @@ public class SimpleCommandDispatcherTest {
         }
     }
 
+    public class CaseSensivityArgument {
+        private String text;
+
+        @Command(main = true)
+        public void sensivity(CommandSender sender, String text) {
+            this.text = text;
+        }
+    }
+
     public class NotMain {
         @Command(main = true)
         public void set(SimpleSender player, String prefix) {
@@ -614,5 +633,7 @@ public class SimpleCommandDispatcherTest {
             this.called = true;
         }
     }
+
+
 
 }
