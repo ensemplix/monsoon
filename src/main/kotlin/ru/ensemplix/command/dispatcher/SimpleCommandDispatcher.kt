@@ -102,8 +102,8 @@ class SimpleCommandDispatcher : CommandDispatcher {
         var action: CommandAction? = null
 
         for(possibleAction in actions) {
-            if(possibleAction!!.method.parameterCount - 1 >= argsLength) {
-                if(action != null && possibleAction.method.parameterCount > action.method.parameterCount) {
+            if(argsLength >= possibleAction!!.method.parameterCount - 1) {
+                if(action != null && action.method.parameterCount > possibleAction.method.parameterCount) {
                     continue
                 }
 

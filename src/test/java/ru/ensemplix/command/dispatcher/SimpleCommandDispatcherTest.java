@@ -451,6 +451,23 @@ public class SimpleCommandDispatcherTest {
         assertEquals("del", command.something);
     }
 
+    @Test
+    public void testCallMainActionRedirect2() {
+        SameMainActionRedirect2 command = new SameMainActionRedirect2();
+
+        dispatcher.register(command, "redirect3");
+        call("redirect3 del test");
+
+        assertEquals("del", command.something);
+        assertEquals("test", command.region);
+    }
+
+    @Test
+    public void testCropUnnecessary() {
+        dispatcher.register(new CropUnnecessary(), "crop");
+        call("crop yes no");
+    }
+
     private boolean validate(String cmd) {
         return dispatcher.validate(sender, cmd) != null;
     }
@@ -601,17 +618,32 @@ public class SimpleCommandDispatcherTest {
         }
     }
 
-
     public class SameMainActionRedirect {
         private String something;
+
+        @Command(main = true)
+        public void delete(SimpleSender sender, String something, Argument<Region> argument) {
+            fail();
+        }
 
         @Command(main = true)
         public void delete(SimpleSender sender, String something) {
             this.something = something;
         }
+    }
+
+    public class SameMainActionRedirect2 {
+        private String something;
+        private String region;
 
         @Command(main = true)
         public void delete(SimpleSender sender, String something, Argument<Region> argument) {
+            this.something = something;
+            this.region = argument.getText();
+        }
+
+        @Command(main = true)
+        public void delete(SimpleSender sender, String something) {
             fail();
         }
     }
@@ -634,6 +666,17 @@ public class SimpleCommandDispatcherTest {
         }
     }
 
+    // Специальный тест который вызывал срабатывание бага.
+    public class CropUnnecessary {
+        @Command(main = true)
+        public void crop(SimpleSender sender) {
 
+        }
+
+        @Command(main = true)
+        public void crop(SimpleSender sender, String prefix) {
+
+        }
+    }
 
 }
