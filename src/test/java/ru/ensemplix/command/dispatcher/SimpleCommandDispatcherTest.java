@@ -203,6 +203,19 @@ public class SimpleCommandDispatcherTest {
     }
 
     @Test
+    public void testCompleteObjectWithRedirect() {
+        CompleteObjectWithRedirects command = new CompleteObjectWithRedirects();
+
+        dispatcher.register(command, "object3");
+        String[] regions = dispatcher.complete(sender, "object3 ").toArray(new String[4]);
+
+        assertEquals("home", regions[0]);
+        assertEquals("spawn", regions[1]);
+        assertEquals("spawn123", regions[2]);
+        assertEquals("spb", regions[3]);
+    }
+
+    @Test
     public void testTypeParserIterable() {
         RegionCommand region = new RegionCommand();
 
@@ -259,15 +272,6 @@ public class SimpleCommandDispatcherTest {
         dispatcher.register(new RegionCommand(), "actions3");
 
         assertTrue(dispatcher.complete(sender, "actions3 remove").isEmpty());
-    }
-
-    @Test
-    public void testCompleteActionPartial() {
-        dispatcher.register(new RegionCommand(), "actions4");
-
-        String[] actions = dispatcher.complete(sender, "actions4 rem").toArray(new String[1]);
-
-        assertEquals("remove", actions[0]);
     }
 
     @Test
@@ -675,6 +679,18 @@ public class SimpleCommandDispatcherTest {
 
         @Command(main = true)
         public void crop(SimpleSender sender, String prefix) {
+
+        }
+    }
+
+    public class CompleteObjectWithRedirects {
+        @Command(main = true)
+        public void redirect(SimpleSender sender) {
+
+        }
+
+        @Command(main = true)
+        public void redirect(SimpleSender sender, Argument<Region> argument) {
 
         }
     }

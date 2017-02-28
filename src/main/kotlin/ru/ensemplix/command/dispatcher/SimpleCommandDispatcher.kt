@@ -54,7 +54,7 @@ class SimpleCommandDispatcher : CommandDispatcher {
             return null
         }
 
-        var args = cmd.split((" ").toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
+        var args = cmd.split((" ").toRegex()).toTypedArray()
         val handler = commands[args[0].toLowerCase()] ?: return null
 
         val commandActions = handler.actions
@@ -242,7 +242,8 @@ class SimpleCommandDispatcher : CommandDispatcher {
             return emptyList()
         }
 
-        if(args.size == 1 && (action == null || context.handler.mains.isNotEmpty())) {
+        // Если не нашли действия, то показываем возможные ваианты.
+        if(args.size == 1 && action == null) {
             val matches = ArrayList<String>()
 
             actions.forEach {
@@ -256,10 +257,6 @@ class SimpleCommandDispatcher : CommandDispatcher {
             }
         }
 
-        if(action == null && context.handler.mains.isEmpty()) {
-            return actions
-        }
-
         var arg = ""
         var i = 1
 
@@ -269,16 +266,13 @@ class SimpleCommandDispatcher : CommandDispatcher {
         }
 
         val parameters = context.action!!.method.parameters
+
+        if(i > parameters.size - 1) {
+            return emptyList()
+        }
+
         val parameterType = parameters[i].type
         val completer: CommandCompleter?
-
-        if(!Iterable::class.java.isAssignableFrom(parameterType)) {
-            val argsLength = if(cmd.last() == ' ') args.size + 1 else args.size
-
-            if(argsLength > context.action.method.parameterCount - 1) {
-                return emptyList()
-            }
-        }
 
         if(Iterable::class.java.isAssignableFrom(parameterType)) {
             val type = parameters[i].parameterizedType as ParameterizedType
