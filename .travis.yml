@@ -4,4 +4,3 @@ before_install: chmod +x gradlew
 install: ./gradlew test
 after_success:
   - "[[ $TRAVIS_PULL_REQUEST == false ]] && [[ $TRAVIS_BRANCH == v2.0 ]] && gradle publish"
-  - bash <(curl -s https://codecov.io/bash)

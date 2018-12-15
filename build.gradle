@@ -62,7 +62,7 @@ publishing {
                         password System.getenv('MAVEN_PASSWORD') != null ? System.getenv('MAVEN_PASSWORD') : ''
                     }
 
-                    url 'http://maven.ensemplix.ru/artifactory/Ensemplix/'
+                    url 'http://dev.ensemplix.ru:8081/artifactory/Ensemplix'
                 }
             }
         }
